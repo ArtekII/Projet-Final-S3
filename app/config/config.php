@@ -68,7 +68,7 @@ return [
 	'database' => [
 		// MySQL Example:
 		'host'     => '127.0.0.1',      // Database host (e.g., 'localhost', 'db.example.com')
-		'dbname'   => 'takalo',   // Database name (e.g., 'flightphp')
+		'dbname'   => 'bngrc_db',   // Database name - BNGRC
 		'user'     => 'root',  // Database user (e.g., 'root')
 		'password' => '',  // Database password (never commit real passwords)
 
