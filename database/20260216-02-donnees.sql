@@ -1,7 +1,7 @@
 -- Données de test pour BNGRC
 -- À exécuter après 20260216-01-table.sql
 
-USE bngrc_db;
+-- USE bngrc_db;
 
 -- =====================================================
 -- REGIONS (déjà insérées dans 01-table.sql)

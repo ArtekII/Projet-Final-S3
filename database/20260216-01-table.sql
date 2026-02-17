@@ -1,5 +1,5 @@
-create database if not exists bngrc_db;
-use bngrc_db;
+-- create database if not exists bngrc_db;
+-- use bngrc_db;
 
 
 CREATE TABLE IF NOT EXISTS regions (

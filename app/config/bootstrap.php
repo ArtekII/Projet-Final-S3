@@ -22,7 +22,6 @@ if (file_exists(__DIR__ . $ds . 'config.php') === false) {
 $app = Flight::app();
 
 // Load config
-define('BASE_URL', rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\'));
 // define('BASE_URL', '/ETU004248/ETU004248-ETU003886/');
 $config = require 'config.php';
 // Load services (OTHER services)
