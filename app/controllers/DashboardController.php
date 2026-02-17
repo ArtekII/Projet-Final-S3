@@ -77,7 +77,7 @@ class DashboardController
     {
         $achatModel = new Achat($this->db);
         $mode = $_POST['mode_distribution'] ?? 'date';
-        $modesValides = ['date', 'priorite', 'proportionnel'];
+        $modesValides = ['date', 'plus_petit', 'proportionnel'];
 
         if (!in_array($mode, $modesValides)) {
             $_SESSION['error'] = 'Mode de distribution invalide.';

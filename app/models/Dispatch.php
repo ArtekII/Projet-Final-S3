@@ -63,7 +63,7 @@ class Dispatch
     /**
      * Simule le dispatch SANS persister en base.
      * Retourne un aperçu des attributions qui seraient effectuées.
-     * @param string $mode Mode de distribution : 'date', 'priorite', 'proportionnel'
+     * @param string $mode Mode de distribution : 'date', 'plus_petit', 'proportionnel'
      */
     public function simulerDispatch(string $mode = 'date'): array
     {
@@ -123,7 +123,7 @@ class Dispatch
 
     /**
      * Valide et persiste réellement le dispatch en base de données.
-     * @param string $mode Mode de distribution : 'date', 'priorite', 'proportionnel'
+     * @param string $mode Mode de distribution : 'date', 'plus_petit', 'proportionnel'
      */
     public function validerDispatch(string $mode = 'date'): array
     {
@@ -225,12 +225,10 @@ class Dispatch
     private function trierBesoinsParMode(array $besoinsMap, string $mode): array
     {
         switch ($mode) {
-            case 'priorite':
-                // Par valeur totale restante décroissante (les plus gros besoins en premier)
+            case 'plus_petit':
+                // Plus petit besoin d'abord (quantité restante croissante)
                 uasort($besoinsMap, function ($a, $b) {
-                    $valA = (float) $a['quantite_restante'] * (float) $a['prix_unitaire'];
-                    $valB = (float) $b['quantite_restante'] * (float) $b['prix_unitaire'];
-                    return $valB <=> $valA;
+                    return (float) $a['quantite_restante'] <=> (float) $b['quantite_restante'];
                 });
                 break;
             case 'proportionnel':
@@ -238,7 +236,7 @@ class Dispatch
                 break;
             case 'date':
             default:
-                // Par date de saisie (ordre chronologique - déjà le tri par défaut de la requête)
+                // Par date de saisie (ordre chronologique)
                 uasort($besoinsMap, function ($a, $b) {
                     return ($a['date_saisie'] ?? '') <=> ($b['date_saisie'] ?? '');
                 });
@@ -248,7 +246,9 @@ class Dispatch
     }
 
     /**
-     * Distribution proportionnelle : répartit chaque don au prorata des besoins restants
+     * Distribution proportionnelle :
+     * attribution = floor(besoin / besoin_total * don)
+     * Le reste est distribué un par un aux besoins ayant la plus grande partie décimale.
      */
     private function distribuerProportionnel(array $dons, array $besoinsMap): array
     {
@@ -265,32 +265,68 @@ class Dispatch
             }
             if ($totalBesoinsRestants <= 0) break;
 
-            foreach ($besoinsMap as &$besoin) {
+            // Phase 1 : attribution = floor(besoin / besoin_total * don)
+            $attribTemp = [];
+            $totalDistribue = 0;
+
+            foreach ($besoinsMap as $besoinId => &$besoin) {
                 $qteRestante = (float) $besoin['quantite_restante'];
                 if ($qteRestante <= 0) continue;
 
-                // Part proportionnelle
-                $ratio = $qteRestante / $totalBesoinsRestants;
-                $quantiteAttribuee = min(
-                    floor($ratio * $quantiteDisponible * 100) / 100, // arrondi à 2 décimales
-                    $qteRestante
-                );
-                if ($quantiteAttribuee <= 0) continue;
+                $partExacte = ($qteRestante / $totalBesoinsRestants) * $quantiteDisponible;
+                $partEntiere = floor($partExacte);
+                $partDecimale = $partExacte - $partEntiere;
 
+                // Ne pas dépasser le besoin restant
+                $partEntiere = min($partEntiere, $qteRestante);
+
+                $attribTemp[$besoinId] = [
+                    'quantite' => $partEntiere,
+                    'decimal' => $partDecimale,
+                    'besoin' => $besoin
+                ];
+
+                $totalDistribue += $partEntiere;
+            }
+            unset($besoin);
+
+            // Phase 2 : distribuer le reste (1 par 1) aux besoins avec le plus gros décimal
+            $reste = $quantiteDisponible - $totalDistribue;
+            if ($reste > 0) {
+                // Trier par partie décimale décroissante
+                uasort($attribTemp, function ($a, $b) {
+                    return $b['decimal'] <=> $a['decimal'];
+                });
+
+                foreach ($attribTemp as $besoinId => &$entry) {
+                    if ($reste <= 0) break;
+                    $maxAjout = (float) $entry['besoin']['quantite_restante'] - $entry['quantite'];
+                    if ($maxAjout >= 1) {
+                        $entry['quantite'] += 1;
+                        $reste -= 1;
+                    }
+                }
+                unset($entry);
+            }
+
+            // Phase 3 : construire les attributions finales
+            foreach ($attribTemp as $besoinId => $entry) {
+                if ($entry['quantite'] <= 0) continue;
+
+                $b = $entry['besoin'];
                 $attributions[] = [
                     'don_id' => $don['id'],
                     'type_don' => $don['type_don'],
-                    'quantite_attribuee' => $quantiteAttribuee,
-                    'besoin_id' => $besoin['id'],
-                    'type_besoin' => $besoin['type_besoin'],
-                    'prix_unitaire' => $besoin['prix_unitaire'],
-                    'ville' => $besoin['ville_nom'],
-                    'region' => $besoin['region_nom']
+                    'quantite_attribuee' => $entry['quantite'],
+                    'besoin_id' => $b['id'],
+                    'type_besoin' => $b['type_besoin'],
+                    'prix_unitaire' => $b['prix_unitaire'],
+                    'ville' => $b['ville_nom'],
+                    'region' => $b['region_nom']
                 ];
 
-                $besoin['quantite_restante'] -= $quantiteAttribuee;
+                $besoinsMap[$besoinId]['quantite_restante'] -= $entry['quantite'];
             }
-            unset($besoin);
         }
 
         return $attributions;

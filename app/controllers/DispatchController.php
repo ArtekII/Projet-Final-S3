@@ -44,7 +44,7 @@ class DispatchController
 
         // Le mode peut venir du query string ou de la config
         $mode = $_GET['mode'] ?? $achatModel->getModeDistribution();
-        $modesValides = ['date', 'priorite', 'proportionnel'];
+        $modesValides = ['date', 'plus_petit', 'proportionnel'];
         if (!in_array($mode, $modesValides)) {
             $mode = 'date';
         }
@@ -68,7 +68,7 @@ class DispatchController
         $achatModel = new Achat($this->db);
 
         $mode = $_POST['mode'] ?? $achatModel->getModeDistribution();
-        $modesValides = ['date', 'priorite', 'proportionnel'];
+        $modesValides = ['date', 'plus_petit', 'proportionnel'];
         if (!in_array($mode, $modesValides)) {
             $mode = 'date';
         }

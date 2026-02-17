@@ -11,7 +11,7 @@ function formatMontant($montant): string {
 
 $modesLabels = [
     'date' => 'Par date (FIFO)',
-    'priorite' => 'Par priorité (plus gros besoins)',
+    'plus_petit' => 'Plus petit besoin d\'abord',
     'proportionnel' => 'Proportionnel'
 ];
 ?>
