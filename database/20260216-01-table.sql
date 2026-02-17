@@ -1,49 +1,58 @@
--- create database if not exists bngrc_db;
--- use bngrc_db;
+CREATE DATABASE IF NOT EXISTS bngrc_db;
+USE bngrc_db;
 
-
-CREATE TABLE IF NOT EXISTS regions (
+-- ================= REGIONS =================
+CREATE TABLE regions (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nom VARCHAR(100) NOT NULL
 );
 
-
-CREATE TABLE IF NOT EXISTS villes (
+-- ================= VILLES =================
+CREATE TABLE villes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nom VARCHAR(100) NOT NULL,
     region_id INT NOT NULL,
     FOREIGN KEY (region_id) REFERENCES regions(id)
 );
 
-CREATE TABLE IF NOT EXISTS besoins (
+-- ================= PARAMETRES =================
+CREATE TABLE parametres (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    frais_achat_percent DECIMAL(5,2) NOT NULL DEFAULT 10.00
+);
+
+-- ================= BESOINS =================
+CREATE TABLE besoins (
     id INT AUTO_INCREMENT PRIMARY KEY,
     ville_id INT NOT NULL,
-    type_besoin VARCHAR(50) NOT NULL,
-    quantite_demandee DECIMAL(15, 2) NOT NULL,
-    quantite_recue DECIMAL(15, 2) DEFAULT 0,
-    prix_unitaire DECIMAL(15, 2) NOT NULL,
+    type_besoin VARCHAR(50) NOT NULL, -- nature / materiaux
+    designation VARCHAR(100) NOT NULL,
+    quantite_demandee DECIMAL(15,2) NOT NULL,
+    quantite_recue DECIMAL(15,2) DEFAULT 0,
+    prix_unitaire DECIMAL(15,2) NOT NULL,
     date_saisie TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (ville_id) REFERENCES villes(id)
 );
 
-
-CREATE TABLE IF NOT EXISTS dons (
+-- ================= DONS =================
+CREATE TABLE dons (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    type VARCHAR(50) NOT NULL,
-    quantite DECIMAL(15, 2) NULL,
+    type_don VARCHAR(50) NOT NULL, -- argent / nature / materiaux
+    designation VARCHAR(100) NULL,
+    montant DECIMAL(15,2) NULL,
+    quantite DECIMAL(15,2) NULL,
+    restant DECIMAL(15,2) NOT NULL,
     date_don TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     dispatched BOOLEAN DEFAULT FALSE
 );
 
-
-CREATE TABLE IF NOT EXISTS dispatch (
+-- ================= DISPATCH =================
+CREATE TABLE dispatch (
     id INT AUTO_INCREMENT PRIMARY KEY,
     don_id INT NOT NULL,
     besoin_id INT NOT NULL,
-    quantite_attribuee DECIMAL(15, 2) NOT NULL,
+    quantite_attribuee DECIMAL(15,2) NOT NULL,
     date_dispatch TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (don_id) REFERENCES dons(id),
     FOREIGN KEY (besoin_id) REFERENCES besoins(id)
 );
-
-
