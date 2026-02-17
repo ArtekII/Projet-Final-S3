@@ -101,4 +101,31 @@ class Achat
         $stmt = $this->db->query($sql);
         return $stmt->fetch(\PDO::FETCH_ASSOC);
     }
+
+    /**
+     * Récupère le mode de distribution configuré
+     */
+    public function getModeDistribution(): string
+    {
+        $sql = "SELECT mode_distribution FROM parametres ORDER BY id DESC LIMIT 1";
+        $stmt = $this->db->query($sql);
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return $result ? $result['mode_distribution'] : 'date';
+    }
+
+    /**
+     * Met à jour le mode de distribution
+     */
+    public function updateModeDistribution(string $mode): bool
+    {
+        $stmt = $this->db->query("SELECT COUNT(*) FROM parametres");
+        $count = $stmt->fetchColumn();
+
+        if ($count > 0) {
+            $stmt = $this->db->prepare("UPDATE parametres SET mode_distribution = ? ORDER BY id DESC LIMIT 1");
+        } else {
+            $stmt = $this->db->prepare("INSERT INTO parametres (mode_distribution) VALUES (?)");
+        }
+        return $stmt->execute([$mode]);
+    }
 }

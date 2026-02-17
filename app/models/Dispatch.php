@@ -63,8 +63,9 @@ class Dispatch
     /**
      * Simule le dispatch SANS persister en base.
      * Retourne un aperçu des attributions qui seraient effectuées.
+     * @param string $mode Mode de distribution : 'date', 'priorite', 'proportionnel'
      */
-    public function simulerDispatch(): array
+    public function simulerDispatch(string $mode = 'date'): array
     {
         $donModel = new Don($this->db);
         $besoinModel = new Besoin($this->db);
@@ -79,6 +80,13 @@ class Dispatch
         $besoinsMap = [];
         foreach ($besoins as $b) {
             $besoinsMap[$b['id']] = $b;
+        }
+
+        // Trier les besoins selon le mode de distribution
+        $besoinsMap = $this->trierBesoinsParMode($besoinsMap, $mode);
+
+        if ($mode === 'proportionnel') {
+            return $this->distribuerProportionnel($dons, $besoinsMap);
         }
 
         foreach ($dons as $don) {
@@ -115,8 +123,9 @@ class Dispatch
 
     /**
      * Valide et persiste réellement le dispatch en base de données.
+     * @param string $mode Mode de distribution : 'date', 'priorite', 'proportionnel'
      */
-    public function validerDispatch(): array
+    public function validerDispatch(string $mode = 'date'): array
     {
         $donModel = new Don($this->db);
         $besoinModel = new Besoin($this->db);
@@ -124,13 +133,48 @@ class Dispatch
         $attributions = [];
         
         $dons = $donModel->getDonsNonDispatches();
+        $besoins = $besoinModel->getBesoinsNonSatisfaits();
+        $besoinsMap = [];
+        foreach ($besoins as $b) {
+            $besoinsMap[$b['id']] = $b;
+        }
+
+        // Trier les besoins selon le mode
+        $besoinsMap = $this->trierBesoinsParMode($besoinsMap, $mode);
+
+        if ($mode === 'proportionnel') {
+            $attribs = $this->distribuerProportionnel($dons, $besoinsMap);
+            // Persister chaque attribution
+            foreach ($attribs as $attr) {
+                $this->create([
+                    'don_id' => $attr['don_id'],
+                    'besoin_id' => $attr['besoin_id'],
+                    'quantite_attribuee' => $attr['quantite_attribuee']
+                ]);
+                $besoinModel->updateQuantiteRecue($attr['besoin_id'], $attr['quantite_attribuee']);
+            }
+            // Mettre à jour les dons
+            foreach ($dons as $don) {
+                $totalUtilise = 0;
+                foreach ($attribs as $attr) {
+                    if ($attr['don_id'] === $don['id']) {
+                        $totalUtilise += $attr['quantite_attribuee'];
+                    }
+                }
+                if ($totalUtilise > 0) {
+                    $donModel->updateRestant($don['id'], $totalUtilise);
+                    if ($totalUtilise >= (float) $don['restant']) {
+                        $donModel->markAsDispatched($don['id']);
+                    }
+                }
+            }
+            return $attribs;
+        }
         
         foreach ($dons as $don) {
             $quantiteRestante = (float) $don['restant'];
             
-            $besoins = $besoinModel->getBesoinsNonSatisfaits();
-            
-            foreach ($besoins as $besoin) {
+            foreach ($besoinsMap as $besoinId => &$besoin) {
                 if ($quantiteRestante <= 0) break;
                 
                 $quantiteNecessaire = (float) $besoin['quantite_restante'];
@@ -141,31 +185,114 @@ class Dispatch
                 // Persister l'attribution
                 $this->create([
                     'don_id' => $don['id'],
-                    'besoin_id' => $besoin['id'],
+                    'besoin_id' => $besoinId,
                     'quantite_attribuee' => $quantiteAttribuee
                 ]);
                 
                 // Mettre à jour la quantité reçue du besoin
-                $besoinModel->updateQuantiteRecue($besoin['id'], $quantiteAttribuee);
+                $besoinModel->updateQuantiteRecue($besoinId, $quantiteAttribuee);
                 
                 $attributions[] = [
                     'don_id' => $don['id'],
                     'type_don' => $don['type_don'],
                     'quantite_attribuee' => $quantiteAttribuee,
+                    'besoin_id' => $besoinId,
                     'type_besoin' => $besoin['type_besoin'],
                     'prix_unitaire' => $besoin['prix_unitaire'],
                     'ville' => $besoin['ville_nom'],
                     'region' => $besoin['region_nom']
                 ];
                 
+                $besoin['quantite_restante'] -= $quantiteAttribuee;
                 $quantiteRestante -= $quantiteAttribuee;
             }
+            unset($besoin);
             
             // Mettre à jour le restant du don et marquer comme dispatché
-            $donModel->updateRestant($don['id'], (float) $don['restant'] - $quantiteRestante);
-            $donModel->markAsDispatched($don['id']);
+            $totalUtilise = (float) $don['restant'] - $quantiteRestante;
+            $donModel->updateRestant($don['id'], $totalUtilise);
+            if ($quantiteRestante <= 0) {
+                $donModel->markAsDispatched($don['id']);
+            }
         }
         
+        return $attributions;
+    }
+
+    /**
+     * Trie les besoins selon le mode de distribution choisi
+     */
+    private function trierBesoinsParMode(array $besoinsMap, string $mode): array
+    {
+        switch ($mode) {
+            case 'priorite':
+                // Par valeur totale restante décroissante (les plus gros besoins en premier)
+                uasort($besoinsMap, function ($a, $b) {
+                    $valA = (float) $a['quantite_restante'] * (float) $a['prix_unitaire'];
+                    $valB = (float) $b['quantite_restante'] * (float) $b['prix_unitaire'];
+                    return $valB <=> $valA;
+                });
+                break;
+            case 'proportionnel':
+                // Pas de tri particulier, la logique proportionnelle est gérée séparément
+                break;
+            case 'date':
+            default:
+                // Par date de saisie (ordre chronologique - déjà le tri par défaut de la requête)
+                uasort($besoinsMap, function ($a, $b) {
+                    return ($a['date_saisie'] ?? '') <=> ($b['date_saisie'] ?? '');
+                });
+                break;
+        }
+        return $besoinsMap;
+    }
+
+    /**
+     * Distribution proportionnelle : répartit chaque don au prorata des besoins restants
+     */
+    private function distribuerProportionnel(array $dons, array $besoinsMap): array
+    {
+        $attributions = [];
+
+        foreach ($dons as $don) {
+            $quantiteDisponible = (float) $don['restant'];
+            if ($quantiteDisponible <= 0) continue;
+
+            // Calculer le total des besoins restants
+            $totalBesoinsRestants = 0;
+            foreach ($besoinsMap as $besoin) {
+                $totalBesoinsRestants += (float) $besoin['quantite_restante'];
+            }
+            if ($totalBesoinsRestants <= 0) break;
+
+            foreach ($besoinsMap as &$besoin) {
+                $qteRestante = (float) $besoin['quantite_restante'];
+                if ($qteRestante <= 0) continue;
+
+                // Part proportionnelle
+                $ratio = $qteRestante / $totalBesoinsRestants;
+                $quantiteAttribuee = min(
+                    floor($ratio * $quantiteDisponible * 100) / 100, // arrondi à 2 décimales
+                    $qteRestante
+                );
+                if ($quantiteAttribuee <= 0) continue;
+
+                $attributions[] = [
+                    'don_id' => $don['id'],
+                    'type_don' => $don['type_don'],
+                    'quantite_attribuee' => $quantiteAttribuee,
+                    'besoin_id' => $besoin['id'],
+                    'type_besoin' => $besoin['type_besoin'],
+                    'prix_unitaire' => $besoin['prix_unitaire'],
+                    'ville' => $besoin['ville_nom'],
+                    'region' => $besoin['region_nom']
+                ];
+
+                $besoin['quantite_restante'] -= $quantiteAttribuee;
+            }
+            unset($besoin);
+        }
+
         return $attributions;
     }
 

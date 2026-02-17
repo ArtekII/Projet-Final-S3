@@ -41,6 +41,16 @@ $router->get('/dashboard/ville/@id:[0-9]+', function (int $id) use ($db, $view) 
     $controller->detailVille($id);
 });
 
+$router->post('/dashboard/reinitialiser', function () use ($db, $view) {
+    $controller = new DashboardController($db, $view);
+    $controller->reinitialiser();
+});
+
+$router->post('/dashboard/mode', function () use ($db, $view) {
+    $controller = new DashboardController($db, $view);
+    $controller->updateMode();
+});
+
 // ==========================================
 // Régions
 // ==========================================
