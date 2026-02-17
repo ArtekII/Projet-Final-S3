@@ -14,6 +14,15 @@ $modesLabels = [
 function formatMontant($montant): string {
     return number_format((float)($montant ?? 0), 0, ',', ' ') . ' Ar';
 }
+
+function formatBesoinLabel(array $attr): string {
+    $designation = trim((string)($attr['besoin_designation'] ?? ''));
+    $type = trim((string)($attr['type_besoin'] ?? ''));
+    if ($designation !== '' && $type !== '' && strcasecmp($designation, $type) !== 0) {
+        return $designation . ' (' . $type . ')';
+    }
+    return $designation !== '' ? $designation : $type;
+}
 ?>
 
 <div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-3 border-bottom">
@@ -99,8 +108,11 @@ function formatMontant($montant): string {
                                     $badgeClass = $attr['type_don'] === 'nature' ? 'bg-primary' : 'bg-info';
                                     ?>
                                     <span class="badge <?= $badgeClass ?>"><?= htmlspecialchars($attr['type_don']) ?></span>
+                                    <?php if (!empty($attr['don_designation'])): ?>
+                                        <div class="small text-muted"><?= htmlspecialchars($attr['don_designation']) ?></div>
+                                    <?php endif; ?>
                                 </td>
-                                <td><span class="badge bg-warning text-dark"><?= htmlspecialchars($attr['type_besoin'] ?? '') ?></span></td>
+                                <td><span class="badge bg-warning text-dark"><?= htmlspecialchars(formatBesoinLabel($attr)) ?></span></td>
                                 <td class="text-end"><?= number_format($attr['quantite_attribuee']) ?></td>
                                 <td class="text-end"><?= formatMontant($valeur) ?></td>
                                 <td><?= htmlspecialchars($attr['ville']) ?></td>

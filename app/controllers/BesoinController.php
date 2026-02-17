@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\models\Besoin;
+use app\models\Type;
 use app\models\Ville;
 use app\template\LayoutView;
 use flight\database\PdoWrapper;
@@ -32,10 +33,10 @@ class BesoinController
     public function create(): void
     {
         $villeModel = new Ville($this->db);
-        $besoinModel = new Besoin($this->db);
+        $typeModel = new Type($this->db);
 
         $villes = $villeModel->findAll();
-        $typesBesoins = $besoinModel->getTypesBesoins();
+        $typesBesoins = $typeModel->findAll();
 
         echo $this->view->renderWithLayout('bngrc/besoins/form', [
             'pageTitle' => 'Saisir un Besoin',
@@ -48,15 +49,20 @@ class BesoinController
     public function store(): void
     {
         $besoinModel = new Besoin($this->db);
+        $typeModel = new Type($this->db);
         
         $data = [
             'ville_id' => (int) ($_POST['ville_id'] ?? 0),
-            'type_besoin' => trim($_POST['type_besoin'] ?? ''),
+            'type_id' => (int) ($_POST['type_id'] ?? 0),
+            'designation' => null,
             'quantite_demandee' => (float) ($_POST['quantite_demandee'] ?? 0),
             'prix_unitaire' => (float) ($_POST['prix_unitaire'] ?? 0)
         ];
+        $designation = trim($_POST['designation'] ?? '');
+        $data['designation'] = $designation !== '' ? $designation : null;
+        $type = $typeModel->find($data['type_id']);
 
-        if ($data['ville_id'] <= 0 || empty($data['type_besoin']) || $data['quantite_demandee'] <= 0) {
+        if ($data['ville_id'] <= 0 || $data['type_id'] <= 0 || !$type || $data['quantite_demandee'] <= 0) {
             $_SESSION['error'] = 'Veuillez remplir tous les champs obligatoires.';
             header('Location: ' . BASE_URL . '/besoins/create');
             exit;
@@ -72,6 +78,7 @@ class BesoinController
     {
         $besoinModel = new Besoin($this->db);
         $villeModel = new Ville($this->db);
+        $typeModel = new Type($this->db);
 
         $besoin = $besoinModel->find($id);
         if (!$besoin) {
@@ -81,7 +88,7 @@ class BesoinController
         }
 
         $villes = $villeModel->findAll();
-        $typesBesoins = $besoinModel->getTypesBesoins();
+        $typesBesoins = $typeModel->findAll();
 
         echo $this->view->renderWithLayout('bngrc/besoins/form', [
             'pageTitle' => 'Modifier le Besoin',
@@ -94,15 +101,20 @@ class BesoinController
     public function update(int $id): void
     {
         $besoinModel = new Besoin($this->db);
+        $typeModel = new Type($this->db);
         
         $data = [
             'ville_id' => (int) ($_POST['ville_id'] ?? 0),
-            'type_besoin' => trim($_POST['type_besoin'] ?? ''),
+            'type_id' => (int) ($_POST['type_id'] ?? 0),
+            'designation' => null,
             'quantite_demandee' => (float) ($_POST['quantite_demandee'] ?? 0),
             'prix_unitaire' => (float) ($_POST['prix_unitaire'] ?? 0)
         ];
+        $designation = trim($_POST['designation'] ?? '');
+        $data['designation'] = $designation !== '' ? $designation : null;
+        $type = $typeModel->find($data['type_id']);
 
-        if ($data['ville_id'] <= 0 || empty($data['type_besoin']) || $data['quantite_demandee'] <= 0) {
+        if ($data['ville_id'] <= 0 || $data['type_id'] <= 0 || !$type || $data['quantite_demandee'] <= 0) {
             $_SESSION['error'] = 'Veuillez remplir tous les champs obligatoires.';
             header('Location: ' . BASE_URL . '/besoins/edit/' . $id);
             exit;

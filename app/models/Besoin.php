@@ -15,8 +15,9 @@ class Besoin
 
     public function findAll(): array
     {
-        $sql = "SELECT b.*, v.nom as ville_nom, r.nom as region_nom
+        $sql = "SELECT b.*, t.nom as type_besoin, v.nom as ville_nom, r.nom as region_nom
                 FROM besoins b
+                JOIN `type` t ON b.type_id = t.id
                 JOIN villes v ON b.ville_id = v.id
                 JOIN regions r ON v.region_id = r.id
                 ORDER BY b.date_saisie DESC";
@@ -26,8 +27,9 @@ class Besoin
 
     public function find(int $id): ?array
     {
-        $sql = "SELECT b.*, v.nom as ville_nom, r.nom as region_nom
+        $sql = "SELECT b.*, t.nom as type_besoin, v.nom as ville_nom, r.nom as region_nom
                 FROM besoins b
+                JOIN `type` t ON b.type_id = t.id
                 JOIN villes v ON b.ville_id = v.id
                 JOIN regions r ON v.region_id = r.id
                 WHERE b.id = ?";
@@ -40,11 +42,12 @@ class Besoin
     public function create(array $data): int
     {
         $stmt = $this->db->prepare(
-            "INSERT INTO besoins (ville_id, type_besoin, quantite_demandee, prix_unitaire) VALUES (?, ?, ?, ?)"
+            "INSERT INTO besoins (ville_id, type_id, designation, quantite_demandee, prix_unitaire) VALUES (?, ?, ?, ?, ?)"
         );
         $stmt->execute([
             $data['ville_id'],
-            $data['type_besoin'],
+            $data['type_id'],
+            $data['designation'] ?? null,
             $data['quantite_demandee'],
             $data['prix_unitaire'] ?? 0
         ]);
@@ -54,11 +57,12 @@ class Besoin
     public function update(int $id, array $data): bool
     {
         $stmt = $this->db->prepare(
-            "UPDATE besoins SET ville_id = ?, type_besoin = ?, quantite_demandee = ?, prix_unitaire = ? WHERE id = ?"
+            "UPDATE besoins SET ville_id = ?, type_id = ?, designation = ?, quantite_demandee = ?, prix_unitaire = ? WHERE id = ?"
         );
         return $stmt->execute([
             $data['ville_id'],
-            $data['type_besoin'],
+            $data['type_id'],
+            $data['designation'] ?? null,
             $data['quantite_demandee'],
             $data['prix_unitaire'] ?? 0,
             $id
@@ -81,10 +85,11 @@ class Besoin
 
     public function findByVille(int $villeId): array
     {
-        $sql = "SELECT b.*
+        $sql = "SELECT b.*, t.nom as type_besoin
                 FROM besoins b
+                JOIN `type` t ON b.type_id = t.id
                 WHERE b.ville_id = ?
-                ORDER BY b.type_besoin";
+                ORDER BY t.nom";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$villeId]);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
@@ -95,15 +100,16 @@ class Besoin
      */
     public function getBesoinsNonSatisfaits(string $typeBesoin = null): array
     {
-        $sql = "SELECT b.*, v.nom as ville_nom, r.nom as region_nom,
+        $sql = "SELECT b.*, t.nom as type_besoin, v.nom as ville_nom, r.nom as region_nom,
                        (b.quantite_demandee - b.quantite_recue) as quantite_restante
                 FROM besoins b
+                JOIN `type` t ON b.type_id = t.id
                 JOIN villes v ON b.ville_id = v.id
                 JOIN regions r ON v.region_id = r.id
                 WHERE b.quantite_recue < b.quantite_demandee";
         
         if ($typeBesoin !== null) {
-            $sql .= " AND b.type_besoin = ?";
+            $sql .= " AND t.nom = ?";
         }
         
         $sql .= " ORDER BY b.date_saisie ASC";
@@ -140,9 +146,9 @@ class Besoin
      */
     public function getTypesBesoins(): array
     {
-        $sql = "SELECT DISTINCT type_besoin FROM besoins ORDER BY type_besoin";
+        $sql = "SELECT id, nom FROM `type` ORDER BY nom";
         $stmt = $this->db->query($sql);
-        return $stmt->fetchAll(\PDO::FETCH_COLUMN);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
     /**
@@ -151,7 +157,8 @@ class Besoin
     public function getBesoinsParType(): array
     {
         $sql = "SELECT 
-                    type_besoin,
+                    b.type_id,
+                    t.nom as type_besoin,
                     COUNT(*) as nb_besoins,
                     SUM(quantite_demandee) as total_demande,
                     SUM(quantite_recue) as total_recu,
@@ -159,9 +166,10 @@ class Besoin
                     SUM(quantite_demandee * prix_unitaire) as valeur_demandee,
                     SUM(quantite_recue * prix_unitaire) as valeur_recue,
                     SUM((quantite_demandee - quantite_recue) * prix_unitaire) as valeur_restante
-                FROM besoins
-                GROUP BY type_besoin
-                ORDER BY type_besoin";
+                FROM besoins b
+                JOIN `type` t ON b.type_id = t.id
+                GROUP BY b.type_id, t.nom
+                ORDER BY t.nom";
         $stmt = $this->db->query($sql);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }

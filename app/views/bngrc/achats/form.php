@@ -9,6 +9,15 @@
 function formatMontant($montant): string {
     return number_format((float)($montant ?? 0), 0, ',', ' ') . ' Ar';
 }
+
+function formatBesoinLabel(array $besoin): string {
+    $designation = trim((string)($besoin['designation'] ?? ''));
+    $type = trim((string)($besoin['type_besoin'] ?? ''));
+    if ($designation !== '' && $type !== '' && strcasecmp($designation, $type) !== 0) {
+        return $designation . ' (' . $type . ')';
+    }
+    return $designation !== '' ? $designation : $type;
+}
 ?>
 
 <div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-3 border-bottom">
@@ -63,10 +72,10 @@ function formatMontant($montant): string {
                                 <option value="<?= $b['id'] ?>" 
                                         data-prix="<?= $b['prix_unitaire'] ?>"
                                         data-restant="<?= $qteRestante ?>"
-                                        data-type="<?= htmlspecialchars($b['type_besoin']) ?>"
+                                        data-label="<?= htmlspecialchars(formatBesoinLabel($b)) ?>"
                                         data-ville="<?= htmlspecialchars($b['ville_nom']) ?>"
                                         <?= ($besoin && $besoin['id'] == $b['id']) ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($b['ville_nom']) ?> — <?= htmlspecialchars($b['type_besoin']) ?> 
+                                    <?= htmlspecialchars($b['ville_nom']) ?> — <?= htmlspecialchars(formatBesoinLabel($b)) ?> 
                                     (restant: <?= number_format($qteRestante) ?>, PU: <?= formatMontant($b['prix_unitaire']) ?>)
                                 </option>
                             <?php endforeach; ?>
@@ -115,7 +124,7 @@ function formatMontant($montant): string {
             <div class="card-body">
                 <table class="table table-sm mb-0">
                     <tr>
-                        <td class="text-muted">Type besoin</td>
+                        <td class="text-muted">Besoin</td>
                         <td class="text-end" id="calc_type">-</td>
                     </tr>
                     <tr>
@@ -192,7 +201,7 @@ function updateCalcul() {
 
     const prixUnitaire = parseFloat(besoinOpt.dataset.prix) || 0;
     const besoinRestant = parseFloat(besoinOpt.dataset.restant) || 0;
-    const typeBesoin = besoinOpt.dataset.type || '';
+    const typeBesoin = besoinOpt.dataset.label || '';
     const villeNom = besoinOpt.dataset.ville || '';
 
     quantiteInput.max = besoinRestant;

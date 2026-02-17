@@ -16,12 +16,14 @@ class Dispatch
     public function findAll(): array
     {
         $sql = "SELECT dp.*, 
-                       d.type_don as don_type, d.quantite as don_quantite, d.montant as don_montant, d.date_don,
-                       b.type_besoin, b.prix_unitaire,
+                       td.nom as don_type, d.designation as don_designation, d.quantite as don_quantite, d.montant as don_montant, d.date_don,
+                       tb.nom as type_besoin, b.designation as besoin_designation, b.prix_unitaire,
                        v.nom as ville_nom, r.nom as region_nom
                 FROM dispatch dp
                 JOIN dons d ON dp.don_id = d.id
+                JOIN `type` td ON d.type_id = td.id
                 JOIN besoins b ON dp.besoin_id = b.id
+                JOIN `type` tb ON b.type_id = tb.id
                 JOIN villes v ON b.ville_id = v.id
                 JOIN regions r ON v.region_id = r.id
                 ORDER BY dp.date_dispatch DESC";
@@ -32,12 +34,14 @@ class Dispatch
     public function find(int $id): ?array
     {
         $sql = "SELECT dp.*, 
-                       d.type_don as don_type, d.quantite as don_quantite, d.montant as don_montant, d.date_don,
-                       b.type_besoin, b.prix_unitaire,
+                       td.nom as don_type, d.designation as don_designation, d.quantite as don_quantite, d.montant as don_montant, d.date_don,
+                       tb.nom as type_besoin, b.designation as besoin_designation, b.prix_unitaire,
                        v.nom as ville_nom, r.nom as region_nom
                 FROM dispatch dp
                 JOIN dons d ON dp.don_id = d.id
+                JOIN `type` td ON d.type_id = td.id
                 JOIN besoins b ON dp.besoin_id = b.id
+                JOIN `type` tb ON b.type_id = tb.id
                 JOIN villes v ON b.ville_id = v.id
                 JOIN regions r ON v.region_id = r.id
                 WHERE dp.id = ?";
@@ -97,15 +101,18 @@ class Dispatch
                 
                 $quantiteNecessaire = (float) $besoin['quantite_restante'];
                 if ($quantiteNecessaire <= 0) continue;
+                if (!$this->besoinCorrespondDon($besoin, $don)) continue;
                 
                 $quantiteAttribuee = min($quantiteRestante, $quantiteNecessaire);
                 
                 $attributions[] = [
                     'don_id' => $don['id'],
                     'type_don' => $don['type_don'],
+                    'don_designation' => $don['designation'] ?? null,
                     'quantite_attribuee' => $quantiteAttribuee,
                     'besoin_id' => $besoin['id'],
                     'type_besoin' => $besoin['type_besoin'],
+                    'besoin_designation' => $besoin['designation'] ?? null,
                     'prix_unitaire' => $besoin['prix_unitaire'],
                     'ville' => $besoin['ville_nom'],
                     'region' => $besoin['region_nom']
@@ -179,6 +186,7 @@ class Dispatch
                 
                 $quantiteNecessaire = (float) $besoin['quantite_restante'];
                 if ($quantiteNecessaire <= 0) continue;
+                if (!$this->besoinCorrespondDon($besoin, $don)) continue;
                 
                 $quantiteAttribuee = min($quantiteRestante, $quantiteNecessaire);
                 
@@ -195,9 +203,11 @@ class Dispatch
                 $attributions[] = [
                     'don_id' => $don['id'],
                     'type_don' => $don['type_don'],
+                    'don_designation' => $don['designation'] ?? null,
                     'quantite_attribuee' => $quantiteAttribuee,
                     'besoin_id' => $besoinId,
                     'type_besoin' => $besoin['type_besoin'],
+                    'besoin_designation' => $besoin['designation'] ?? null,
                     'prix_unitaire' => $besoin['prix_unitaire'],
                     'ville' => $besoin['ville_nom'],
                     'region' => $besoin['region_nom']
@@ -245,10 +255,47 @@ class Dispatch
         return $besoinsMap;
     }
 
+    private function besoinCorrespondDon(array $besoin, array $don): bool
+    {
+        $typeDon = strtolower(trim((string) ($don['type_don'] ?? '')));
+        if ($typeDon === 'argent') {
+            return false;
+        }
+
+        $cleBesoin = $this->normaliserCle($besoin['designation'] ?? null, $besoin['type_besoin'] ?? null);
+        if ($cleBesoin === '') {
+            return false;
+        }
+
+        $designationDon = trim((string) ($don['designation'] ?? ''));
+        if ($designationDon !== '') {
+            if (strtolower($designationDon) !== $cleBesoin) {
+                return false;
+            }
+        }
+
+        $typeBesoin = strtolower(trim((string) ($besoin['type_besoin'] ?? '')));
+        if ($typeBesoin === '' || $typeDon !== $typeBesoin) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private function normaliserCle(?string $designation, ?string $fallback): string
+    {
+        $designation = trim((string) $designation);
+        if ($designation !== '') {
+            return strtolower($designation);
+        }
+        $fallback = trim((string) $fallback);
+        return $fallback !== '' ? strtolower($fallback) : '';
+    }
+
     /**
      * Distribution proportionnelle :
      * attribution = floor(besoin / besoin_total * don)
-     * Le reste est distribué un par un aux besoins ayant la plus grande partie décimale.
+     * Le reste est distribué au plus grand besoin, puis au suivant, etc.
      */
     private function distribuerProportionnel(array $dons, array $besoinsMap): array
     {
@@ -258,9 +305,20 @@ class Dispatch
             $quantiteDisponible = (float) $don['restant'];
             if ($quantiteDisponible <= 0) continue;
 
+            // Besoins correspondant au don (designation/type)
+            $besoinsEligibles = [];
+            foreach ($besoinsMap as $besoinId => $besoin) {
+                if ($this->besoinCorrespondDon($besoin, $don)) {
+                    $besoinsEligibles[$besoinId] = $besoin;
+                }
+            }
+            if (empty($besoinsEligibles)) {
+                continue;
+            }
+
             // Calculer le total des besoins restants
             $totalBesoinsRestants = 0;
-            foreach ($besoinsMap as $besoin) {
+            foreach ($besoinsEligibles as $besoin) {
                 $totalBesoinsRestants += (float) $besoin['quantite_restante'];
             }
             if ($totalBesoinsRestants <= 0) break;
@@ -269,7 +327,7 @@ class Dispatch
             $attribTemp = [];
             $totalDistribue = 0;
 
-            foreach ($besoinsMap as $besoinId => &$besoin) {
+            foreach ($besoinsEligibles as $besoinId => $besoin) {
                 $qteRestante = (float) $besoin['quantite_restante'];
                 if ($qteRestante <= 0) continue;
 
@@ -288,7 +346,6 @@ class Dispatch
 
                 $totalDistribue += $partEntiere;
             }
-            unset($besoin);
 
             // Phase 2 : distribuer le reste au plus grand besoin, puis au suivant, etc.
             $reste = (int) floor($quantiteDisponible - $totalDistribue);
@@ -318,9 +375,11 @@ class Dispatch
                 $attributions[] = [
                     'don_id' => $don['id'],
                     'type_don' => $don['type_don'],
+                    'don_designation' => $don['designation'] ?? null,
                     'quantite_attribuee' => $entry['quantite'],
                     'besoin_id' => $b['id'],
                     'type_besoin' => $b['type_besoin'],
+                    'besoin_designation' => $b['designation'] ?? null,
                     'prix_unitaire' => $b['prix_unitaire'],
                     'ville' => $b['ville_nom'],
                     'region' => $b['region_nom']
@@ -339,11 +398,13 @@ class Dispatch
     public function getHistoriqueParVille(int $villeId): array
     {
         $sql = "SELECT dp.*, 
-                       d.type_don as don_type, d.date_don,
-                       b.type_besoin, b.prix_unitaire
+                       td.nom as don_type, d.date_don,
+                       tb.nom as type_besoin, b.prix_unitaire
                 FROM dispatch dp
                 JOIN dons d ON dp.don_id = d.id
+                JOIN `type` td ON d.type_id = td.id
                 JOIN besoins b ON dp.besoin_id = b.id
+                JOIN `type` tb ON b.type_id = tb.id
                 WHERE b.ville_id = ?
                 ORDER BY dp.date_dispatch DESC";
         $stmt = $this->db->prepare($sql);

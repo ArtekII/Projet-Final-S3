@@ -102,7 +102,7 @@ class Ville
     {
         $sql = "SELECT 
                     b.id,
-                    b.type_besoin,
+                    t.nom as type_besoin,
                     b.prix_unitaire,
                     b.quantite_demandee,
                     b.quantite_recue,
@@ -110,8 +110,9 @@ class Ville
                     (b.quantite_demandee * b.prix_unitaire) as valeur_totale,
                     (b.quantite_recue * b.prix_unitaire) as valeur_recue
                 FROM besoins b
+                JOIN `type` t ON b.type_id = t.id
                 WHERE b.ville_id = ?
-                ORDER BY b.type_besoin";
+                ORDER BY t.nom";
         
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$villeId]);

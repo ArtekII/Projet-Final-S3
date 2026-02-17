@@ -26,6 +26,7 @@ function formatMontant($montant): string {
                         <th>Ville</th>
                         <th>Région</th>
                         <th>Type de besoin</th>
+                        <th>Désignation</th>
                         <th class="text-end">Quantité demandée</th>
                         <th class="text-end">Quantité reçue</th>
                         <th class="text-end">Prix unitaire</th>
@@ -36,7 +37,7 @@ function formatMontant($montant): string {
                 <tbody>
                     <?php if (empty($besoins)): ?>
                         <tr>
-                            <td colspan="8" class="text-center text-muted py-4">
+                            <td colspan="9" class="text-center text-muted py-4">
                                 <i class="bi bi-inbox display-4 d-block mb-2"></i>
                                 Aucun besoin enregistré
                             </td>
@@ -47,6 +48,7 @@ function formatMontant($montant): string {
                                 <td><strong><?= htmlspecialchars($besoin['ville_nom']) ?></strong></td>
                                 <td><?= htmlspecialchars($besoin['region_nom']) ?></td>
                                 <td><span class="badge bg-primary"><?= htmlspecialchars($besoin['type_besoin']) ?></span></td>
+                                <td><?= !empty($besoin['designation']) ? htmlspecialchars($besoin['designation']) : '-' ?></td>
                                 <td class="text-end"><?= number_format($besoin['quantite_demandee']) ?></td>
                                 <td class="text-end">
                                     <?= number_format($besoin['quantite_recue']) ?>

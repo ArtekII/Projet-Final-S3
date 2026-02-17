@@ -111,10 +111,11 @@ class AchatController
         }
 
         // Vérifier qu'il n'y a pas de don en nature/matériaux pour ce type de besoin
-        $donsNatureDisponibles = $this->verifierDonsNatureExistants($besoin['type_besoin']);
+        $donsNatureDisponibles = $this->verifierDonsNatureExistants($besoin);
         if (!empty($donsNatureDisponibles)) {
-            $_SESSION['error'] = 'Impossible d\'acheter : il reste des dons en nature/matériaux non dispatchés pour le type "' 
-                . htmlspecialchars($besoin['type_besoin']) . '". Veuillez d\'abord dispatcher ces dons.';
+            $libelleBesoin = $this->formatBesoinLabel($besoin);
+            $_SESSION['error'] = 'Impossible d\'acheter : il reste des dons en nature/matériaux non dispatchés pour "' 
+                . htmlspecialchars($libelleBesoin) . '". Veuillez d\'abord dispatcher ces dons.';
             header('Location: ' . BASE_URL . '/achats/create?besoin_id=' . $besoinId);
             exit;
         }
@@ -156,8 +157,9 @@ class AchatController
         // Mettre à jour le restant du don
         $donModel->updateRestant($donId, $montantTotal);
 
+        $libelleBesoin = $this->formatBesoinLabel($besoin);
         $_SESSION['success'] = 'Achat enregistré avec succès : ' . number_format($quantite) . ' ' 
-            . $besoin['type_besoin'] . ' pour ' . number_format($montantTotal, 0, ',', ' ') . ' Ar (dont ' 
+            . $libelleBesoin . ' pour ' . number_format($montantTotal, 0, ',', ' ') . ' Ar (dont ' 
             . $frais . '% de frais).';
         header('Location: ' . BASE_URL . '/achats');
         exit;
@@ -187,14 +189,51 @@ class AchatController
      * Vérifie s'il existe des dons en nature/matériaux non dispatchés
      * dont le type correspond au type de besoin
      */
-    private function verifierDonsNatureExistants(string $typeBesoin): array
+    private function verifierDonsNatureExistants(array $besoin): array
     {
         $donModel = new Don($this->db);
         $dons = $donModel->getDonsNonDispatches();
-        
-        // Note : les dons nature/materiaux n'ont pas de "type_besoin" direct,
-        // mais le sujet dit "erreur si l'achat existe encore dans les dons restants"
-        // On vérifie donc s'il reste des dons nature/materiaux non dispatchés
-        return $dons;
+
+        $libelleBesoin = $this->normaliserCle($besoin['designation'] ?? null, $besoin['type_besoin'] ?? null);
+        $typeBesoin = strtolower(trim((string) ($besoin['type_besoin'] ?? '')));
+
+        $resultats = [];
+        foreach ($dons as $don) {
+            if ($libelleBesoin === '') {
+                continue;
+            }
+
+            $designationDon = trim((string) ($don['designation'] ?? ''));
+            if ($designationDon !== '' && strtolower($designationDon) !== $libelleBesoin) {
+                continue;
+            }
+            $typeDon = strtolower(trim((string) ($don['type_don'] ?? '')));
+            if ($typeBesoin === '' || $typeDon !== $typeBesoin) {
+                continue;
+            }
+            $resultats[] = $don;
+        }
+
+        return $resultats;
+    }
+
+    private function formatBesoinLabel(array $besoin): string
+    {
+        $designation = trim((string) ($besoin['designation'] ?? ''));
+        $type = trim((string) ($besoin['type_besoin'] ?? ''));
+        if ($designation !== '' && $type !== '' && strcasecmp($designation, $type) !== 0) {
+            return $designation . ' (' . $type . ')';
+        }
+        return $designation !== '' ? $designation : $type;
+    }
+
+    private function normaliserCle(?string $designation, ?string $fallback): string
+    {
+        $designation = trim((string) $designation);
+        if ($designation !== '') {
+            return strtolower($designation);
+        }
+        $fallback = trim((string) $fallback);
+        return $fallback !== '' ? strtolower($fallback) : '';
     }
 }

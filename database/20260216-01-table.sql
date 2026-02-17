@@ -7,6 +7,11 @@ CREATE TABLE regions (
     nom VARCHAR(100) NOT NULL
 );
 
+CREATE TABLE type (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nom VARCHAR(50) NOT NULL
+);
+
 -- ================= VILLES =================
 CREATE TABLE villes (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -19,25 +24,27 @@ CREATE TABLE villes (
 CREATE TABLE besoins (
     id INT AUTO_INCREMENT PRIMARY KEY,
     ville_id INT NOT NULL,
-    type_besoin VARCHAR(50) NOT NULL, -- nature / materiaux
+    type_id INT NOT NULL,
     designation VARCHAR(100) NULL,
     quantite_demandee DECIMAL(15,2) NOT NULL,
     quantite_recue DECIMAL(15,2) DEFAULT 0,
     prix_unitaire DECIMAL(15,2) NOT NULL,
     date_saisie TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (ville_id) REFERENCES villes(id)
+    FOREIGN KEY (ville_id) REFERENCES villes(id),
+    FOREIGN KEY (type_id) REFERENCES type(id)
 );
 
 -- ================= DONS =================
 CREATE TABLE dons (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    type_don VARCHAR(50) NOT NULL, -- argent / nature / materiaux
+    type_id INT NOT NULL, -- argent / nature / materiaux
     designation VARCHAR(100) NULL, -- nom spécifique du don (riz, tente, etc.)
     montant DECIMAL(15,2) NULL,
     quantite DECIMAL(15,2) NULL,
     restant DECIMAL(15,2) NOT NULL,
     date_don TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    dispatched BOOLEAN DEFAULT FALSE
+    dispatched BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (type_id) REFERENCES type(id)
 );
 
 -- ================= DISPATCH =================

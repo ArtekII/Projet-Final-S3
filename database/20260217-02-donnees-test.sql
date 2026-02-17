@@ -124,56 +124,56 @@ INSERT INTO villes (nom, region_id) VALUES
 -- =====================================================
 -- BESOINS DES VILLES SINISTREES
 -- =====================================================
-INSERT INTO besoins (ville_id, type_besoin, quantite_demandee, quantite_recue, prix_unitaire) VALUES 
+INSERT INTO besoins (ville_id, type_besoin, designation, quantite_demandee, quantite_recue, prix_unitaire) VALUES 
 -- Antananarivo (ville_id: 1)
-(1, 'Riz', 5000.00, 0.00, 2500.00),           -- besoin 1
-(1, 'Huile', 1000.00, 0.00, 8000.00),          -- besoin 2
-(1, 'Couvertures', 500.00, 0.00, 25000.00),    -- besoin 3
+(1, 'Riz', 'Riz', 5000.00, 0.00, 2500.00),           -- besoin 1
+(1, 'Huile', 'Huile', 1000.00, 0.00, 8000.00),          -- besoin 2
+(1, 'Couvertures', 'Couvertures', 500.00, 0.00, 25000.00),    -- besoin 3
 
 -- Antsirabe (ville_id: 2)
-(2, 'Riz', 3000.00, 0.00, 2500.00),            -- besoin 4
-(2, 'Eau potable', 10000.00, 0.00, 500.00),    -- besoin 5
-(2, 'Médicaments', 200.00, 0.00, 15000.00),    -- besoin 6
+(2, 'Riz', 'Riz', 3000.00, 0.00, 2500.00),            -- besoin 4
+(2, 'Eau potable', 'Eau potable', 10000.00, 0.00, 500.00),    -- besoin 5
+(2, 'Médicaments', 'Médicaments', 200.00, 0.00, 15000.00),    -- besoin 6
 
 -- Miarinarivo (ville_id: 3)
-(3, 'Tôle', 800.00, 0.00, 45000.00),           -- besoin 7
-(3, 'Riz', 2000.00, 0.00, 2500.00),            -- besoin 8
-(3, 'Savon', 1500.00, 0.00, 2000.00),          -- besoin 9
+(3, 'Tôle', 'Tôle', 800.00, 0.00, 45000.00),           -- besoin 7
+(3, 'Riz', 'Riz', 2000.00, 0.00, 2500.00),            -- besoin 8
+(3, 'Savon', 'Savon', 1500.00, 0.00, 2000.00),          -- besoin 9
 
 -- Tsiroanomandidy (ville_id: 4)
-(4, 'Riz', 4000.00, 0.00, 2500.00),            -- besoin 10
-(4, 'Sucre', 500.00, 0.00, 4000.00),           -- besoin 11
-(4, 'Huile', 800.00, 0.00, 8000.00),           -- besoin 12
+(4, 'Riz', 'Riz', 4000.00, 0.00, 2500.00),            -- besoin 10
+(4, 'Sucre', 'Sucre', 500.00, 0.00, 4000.00),           -- besoin 11
+(4, 'Huile', 'Huile', 800.00, 0.00, 8000.00),           -- besoin 12
 
 -- Antsohihy (ville_id: 5)
-(5, 'Tente', 150.00, 0.00, 200000.00),         -- besoin 13
-(5, 'Riz', 6000.00, 0.00, 2500.00),            -- besoin 14
-(5, 'Eau potable', 15000.00, 0.00, 500.00),    -- besoin 15
+(5, 'Tente', 'Tente', 150.00, 0.00, 200000.00),         -- besoin 13
+(5, 'Riz', 'Riz', 6000.00, 0.00, 2500.00),            -- besoin 14
+(5, 'Eau potable', 'Eau potable', 15000.00, 0.00, 500.00),    -- besoin 15
 
 -- Mahajanga (ville_id: 6)
-(6, 'Riz', 8000.00, 0.00, 2500.00),            -- besoin 16
-(6, 'Couvertures', 1000.00, 0.00, 25000.00),   -- besoin 17
-(6, 'Médicaments', 500.00, 0.00, 15000.00),    -- besoin 18
+(6, 'Riz', 'Riz', 8000.00, 0.00, 2500.00),            -- besoin 16
+(6, 'Couvertures', 'Couvertures', 1000.00, 0.00, 25000.00),   -- besoin 17
+(6, 'Médicaments', 'Médicaments', 500.00, 0.00, 15000.00),    -- besoin 18
 
 -- Maevatanana (ville_id: 7)
-(7, 'Tôle', 500.00, 0.00, 45000.00),           -- besoin 19
-(7, 'Riz', 2500.00, 0.00, 2500.00),            -- besoin 20
+(7, 'Tôle', 'Tôle', 500.00, 0.00, 45000.00),           -- besoin 19
+(7, 'Riz', 'Riz', 2500.00, 0.00, 2500.00),            -- besoin 20
 
 -- Maintirano (ville_id: 8)
-(8, 'Riz', 3500.00, 0.00, 2500.00),            -- besoin 21
-(8, 'Huile', 600.00, 0.00, 8000.00),           -- besoin 22
-(8, 'Tente', 100.00, 0.00, 200000.00),         -- besoin 23
+(8, 'Riz', 'Riz', 3500.00, 0.00, 2500.00),            -- besoin 21
+(8, 'Huile', 'Huile', 600.00, 0.00, 8000.00),           -- besoin 22
+(8, 'Tente', 'Tente', 100.00, 0.00, 200000.00),         -- besoin 23
 
 -- Ambatondrazaka (ville_id: 9)
-(9, 'Riz', 7000.00, 0.00, 2500.00),            -- besoin 24
-(9, 'Eau potable', 20000.00, 0.00, 500.00),    -- besoin 25
-(9, 'Savon', 2000.00, 0.00, 2000.00),          -- besoin 26
+(9, 'Riz', 'Riz', 7000.00, 0.00, 2500.00),            -- besoin 24
+(9, 'Eau potable', 'Eau potable', 20000.00, 0.00, 500.00),    -- besoin 25
+(9, 'Savon', 'Savon', 2000.00, 0.00, 2000.00),          -- besoin 26
 
 -- Toamasina (ville_id: 10)
-(10, 'Riz', 10000.00, 0.00, 2500.00),          -- besoin 27
-(10, 'Tôle', 1500.00, 0.00, 45000.00),         -- besoin 28
-(10, 'Médicaments', 800.00, 0.00, 15000.00),   -- besoin 29
-(10, 'Couvertures', 2000.00, 0.00, 25000.00);  -- besoin 30
+(10, 'Riz', 'Riz', 10000.00, 0.00, 2500.00),          -- besoin 27
+(10, 'Tôle', 'Tôle', 1500.00, 0.00, 45000.00),         -- besoin 28
+(10, 'Médicaments', 'Médicaments', 800.00, 0.00, 15000.00),   -- besoin 29
+(10, 'Couvertures', 'Couvertures', 2000.00, 0.00, 25000.00);  -- besoin 30
 
 -- =====================================================
 -- DONS REÇUS (type_don: argent / nature / materiaux)
@@ -183,34 +183,34 @@ INSERT INTO besoins (ville_id, type_besoin, quantite_demandee, quantite_recue, p
 -- =====================================================
 
 -- ---------- Dons en ARGENT ----------
-INSERT INTO dons (type_don, montant, quantite, restant, date_don, dispatched) VALUES 
-('argent', 50000000.00, NULL, 50000000.00, '2026-02-01 08:00:00', FALSE),   -- don 1 : 50M Ar
-('argent', 25000000.00, NULL, 25000000.00, '2026-02-03 10:30:00', FALSE),   -- don 2 : 25M Ar
-('argent', 100000000.00, NULL, 100000000.00, '2026-02-06 09:00:00', FALSE), -- don 3 : 100M Ar
-('argent', 15000000.00, NULL, 15000000.00, '2026-02-09 14:00:00', FALSE),   -- don 4 : 15M Ar
-('argent', 75000000.00, NULL, 75000000.00, '2026-02-12 11:30:00', FALSE);   -- don 5 : 75M Ar
+INSERT INTO dons (type_don, designation, montant, quantite, restant, date_don, dispatched) VALUES 
+('argent', NULL, 50000000.00, NULL, 50000000.00, '2026-02-01 08:00:00', FALSE),   -- don 1 : 50M Ar
+('argent', NULL, 25000000.00, NULL, 25000000.00, '2026-02-03 10:30:00', FALSE),   -- don 2 : 25M Ar
+('argent', NULL, 100000000.00, NULL, 100000000.00, '2026-02-06 09:00:00', FALSE), -- don 3 : 100M Ar
+('argent', NULL, 15000000.00, NULL, 15000000.00, '2026-02-09 14:00:00', FALSE),   -- don 4 : 15M Ar
+('argent', NULL, 75000000.00, NULL, 75000000.00, '2026-02-12 11:30:00', FALSE);   -- don 5 : 75M Ar
 
 -- ---------- Dons en NATURE ----------
-INSERT INTO dons (type_don, montant, quantite, restant, date_don, dispatched) VALUES 
-('nature', NULL, 5000.00, 5000.00, '2026-02-01 09:00:00', FALSE),    -- don 6 : Riz 5000kg
-('nature', NULL, 3000.00, 3000.00, '2026-02-03 11:00:00', FALSE),    -- don 7 : Riz 3000kg
-('nature', NULL, 8000.00, 8000.00, '2026-02-05 14:00:00', FALSE),    -- don 8 : Riz 8000kg
-('nature', NULL, 500.00, 500.00, '2026-02-02 11:00:00', FALSE),      -- don 9 : Huile 500L
-('nature', NULL, 800.00, 800.00, '2026-02-07 16:45:00', FALSE),      -- don 10 : Huile 800L
-('nature', NULL, 1000.00, 1000.00, '2026-02-06 10:00:00', FALSE),    -- don 11 : Couvertures
-('nature', NULL, 500.00, 500.00, '2026-02-11 11:00:00', FALSE),      -- don 12 : Couvertures
-('nature', NULL, 10000.00, 10000.00, '2026-02-02 08:30:00', FALSE),  -- don 13 : Eau potable
-('nature', NULL, 200.00, 200.00, '2026-02-05 09:45:00', FALSE),      -- don 14 : Médicaments
-('nature', NULL, 1000.00, 1000.00, '2026-02-03 14:00:00', FALSE),    -- don 15 : Savon
-('nature', NULL, 300.00, 300.00, '2026-02-04 16:00:00', FALSE),      -- don 16 : Sucre
-('nature', NULL, 50.00, 50.00, '2026-02-06 08:00:00', FALSE);        -- don 17 : Tentes
+INSERT INTO dons (type_don, designation, montant, quantite, restant, date_don, dispatched) VALUES 
+('nature', 'Riz', NULL, 5000.00, 5000.00, '2026-02-01 09:00:00', FALSE),    -- don 6 : Riz 5000kg
+('nature', 'Riz', NULL, 3000.00, 3000.00, '2026-02-03 11:00:00', FALSE),    -- don 7 : Riz 3000kg
+('nature', 'Riz', NULL, 8000.00, 8000.00, '2026-02-05 14:00:00', FALSE),    -- don 8 : Riz 8000kg
+('nature', 'Huile', NULL, 500.00, 500.00, '2026-02-02 11:00:00', FALSE),      -- don 9 : Huile 500L
+('nature', 'Huile', NULL, 800.00, 800.00, '2026-02-07 16:45:00', FALSE),      -- don 10 : Huile 800L
+('nature', 'Couvertures', NULL, 1000.00, 1000.00, '2026-02-06 10:00:00', FALSE),    -- don 11 : Couvertures
+('nature', 'Couvertures', NULL, 500.00, 500.00, '2026-02-11 11:00:00', FALSE),      -- don 12 : Couvertures
+('nature', 'Eau potable', NULL, 10000.00, 10000.00, '2026-02-02 08:30:00', FALSE),  -- don 13 : Eau potable
+('nature', 'Médicaments', NULL, 200.00, 200.00, '2026-02-05 09:45:00', FALSE),      -- don 14 : Médicaments
+('nature', 'Savon', NULL, 1000.00, 1000.00, '2026-02-03 14:00:00', FALSE),    -- don 15 : Savon
+('nature', 'Sucre', NULL, 300.00, 300.00, '2026-02-04 16:00:00', FALSE),      -- don 16 : Sucre
+('nature', 'Tente', NULL, 50.00, 50.00, '2026-02-06 08:00:00', FALSE);        -- don 17 : Tentes
 
 -- ---------- Dons en MATERIAUX ----------
-INSERT INTO dons (type_don, montant, quantite, restant, date_don, dispatched) VALUES 
-('materiaux', NULL, 300.00, 300.00, '2026-02-04 09:00:00', FALSE),   -- don 18 : Tôle 300 pièces
-('materiaux', NULL, 500.00, 500.00, '2026-02-08 13:30:00', FALSE),   -- don 19 : Tôle 500 pièces
-('materiaux', NULL, 80.00, 80.00, '2026-02-13 14:30:00', FALSE),     -- don 20 : Tentes 80 unités
-('materiaux', NULL, 2000.00, 2000.00, '2026-02-10 09:15:00', FALSE); -- don 21 : Riz 2000kg
+INSERT INTO dons (type_don, designation, montant, quantite, restant, date_don, dispatched) VALUES 
+('materiaux', 'Tôle', NULL, 300.00, 300.00, '2026-02-04 09:00:00', FALSE),   -- don 18 : Tôle 300 pièces
+('materiaux', 'Tôle', NULL, 500.00, 500.00, '2026-02-08 13:30:00', FALSE),   -- don 19 : Tôle 500 pièces
+('materiaux', 'Tente', NULL, 80.00, 80.00, '2026-02-13 14:30:00', FALSE),     -- don 20 : Tentes 80 unités
+('materiaux', 'Riz', NULL, 2000.00, 2000.00, '2026-02-10 09:15:00', FALSE); -- don 21 : Riz 2000kg
 
 -- =====================================================
 -- PARAMETRES (frais d'achat par défaut)

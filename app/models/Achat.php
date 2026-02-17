@@ -16,14 +16,16 @@ class Achat
     public function findAll(?int $villeId = null): array
     {
         $sql = "SELECT a.*, 
-                       b.type_besoin, b.prix_unitaire, b.quantite_demandee, b.quantite_recue,
+                       tb.nom as type_besoin, b.designation as besoin_designation, b.prix_unitaire, b.quantite_demandee, b.quantite_recue,
                        v.nom as ville_nom, r.nom as region_nom,
-                       d.type_don, d.montant as don_montant, d.restant as don_restant
+                       td.nom as type_don, d.montant as don_montant, d.restant as don_restant
                 FROM achats a
                 JOIN besoins b ON a.besoin_id = b.id
+                JOIN `type` tb ON b.type_id = tb.id
                 JOIN villes v ON a.ville_id = v.id
                 JOIN regions r ON v.region_id = r.id
-                JOIN dons d ON a.don_id = d.id";
+                JOIN dons d ON a.don_id = d.id
+                JOIN `type` td ON d.type_id = td.id";
         
         if ($villeId !== null) {
             $sql .= " WHERE a.ville_id = ?";

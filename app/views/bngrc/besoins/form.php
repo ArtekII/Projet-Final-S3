@@ -40,22 +40,25 @@ $isEdit = $besoin !== null;
                     </div>
                     
                     <div class="mb-3">
-                        <label for="type_besoin" class="form-label">Type de besoin <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="type_besoin" name="type_besoin" 
-                               value="<?= htmlspecialchars($besoin['type_besoin'] ?? '') ?>" 
-                               list="types_besoins_list" required placeholder="Ex: Riz, Huile, Tôle...">
-                        <datalist id="types_besoins_list">
+                        <label for="type_id" class="form-label">Type de besoin <span class="text-danger">*</span></label>
+                        <select class="form-select" id="type_id" name="type_id" required>
+                            <option value="">Sélectionner un type</option>
                             <?php foreach ($typesBesoins as $type): ?>
-                                <option value="<?= htmlspecialchars($type) ?>">
+                                <?php $isSelected = ($besoin['type_id'] ?? null) == $type['id']; ?>
+                                <option value="<?= $type['id'] ?>" <?= $isSelected ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($type['nom']) ?>
+                                </option>
                             <?php endforeach; ?>
-                            <option value="Riz">
-                            <option value="Huile">
-                            <option value="Tôle">
-                            <option value="Savon">
-                            <option value="Sucre">
-                            <option value="Eau">
-                            <option value="Médicaments">
-                        </datalist>
+                        </select>
+                        <small class="text-muted">Catégorie du besoin (utilisée pour le dispatch).</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="designation" class="form-label">Désignation</label>
+                        <input type="text" class="form-control" id="designation" name="designation" 
+                               value="<?= htmlspecialchars($besoin['designation'] ?? '') ?>" 
+                               placeholder="Ex: Riz local, Tente familiale...">
+                        <small class="text-muted">Utilisée pour matcher les dons lors du dispatch (ex: Riz, Tente, Tôle).</small>
                     </div>
                     
                     <div class="mb-3">
@@ -104,7 +107,7 @@ $isEdit = $besoin !== null;
                     <li><span class="badge bg-success me-2">Riz</span> Produit alimentaire de base</li>
                     <li class="mt-2"><span class="badge bg-warning me-2">Huile</span> Huile alimentaire</li>
                     <li class="mt-2"><span class="badge bg-info me-2">Tôle</span> Matériaux de construction</li>
-                    <li class="mt-2"><span class="badge bg-secondary me-2">Autre</span> Vous pouvez saisir un type personnalisé</li>
+                    <li class="mt-2"><span class="badge bg-secondary me-2">Astuce</span> Saisir une désignation claire pour faciliter le dispatch</li>
                 </ul>
             </div>
         </div>

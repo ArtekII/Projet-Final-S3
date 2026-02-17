@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\models\Don;
+use app\models\Type;
 use app\template\LayoutView;
 use flight\database\PdoWrapper;
 
@@ -30,8 +31,8 @@ class DonController
 
     public function create(): void
     {
-        $donModel = new Don($this->db);
-        $typesDons = $donModel->getTypesDons();
+        $typeModel = new Type($this->db);
+        $typesDons = $typeModel->findAll();
 
         echo $this->view->renderWithLayout('bngrc/dons/form', [
             'pageTitle' => 'Enregistrer un Don',
@@ -43,37 +44,47 @@ class DonController
     public function store(): void
     {
         $donModel = new Don($this->db);
+        $typeModel = new Type($this->db);
         
-        $typeDon = trim($_POST['type_don'] ?? '');
+        $typeId = (int) ($_POST['type_id'] ?? 0);
+        $type = $typeModel->find($typeId);
+        $typeNom = $type ? strtolower(trim((string) $type['nom'])) : '';
         $data = [
-            'type_don' => $typeDon,
+            'type_id' => $typeId,
             'designation' => $_POST['designation'] ?? null,
             'montant' => $_POST['montant'] ?? null,
             'quantite' => $_POST['quantite'] ?? null,
         ];
 
-        if (empty($data['type_don'])) {
+        if ($typeId <= 0 || !$type) {
             $_SESSION['error'] = 'Veuillez sélectionner le type de don.';
             header('Location: ' . BASE_URL . '/dons/create');
             exit;
         }
 
-        if ($typeDon !== 'argent' && empty(trim($data['designation'] ?? ''))) {
+        if ($typeNom !== 'argent' && empty(trim($data['designation'] ?? ''))) {
             $_SESSION['error'] = 'Veuillez saisir la désignation du don.';
             header('Location: ' . BASE_URL . '/dons/create');
             exit;
         }
 
-        if ($typeDon === 'argent' && (empty($data['montant']) || (float)$data['montant'] <= 0)) {
+        if ($typeNom === 'argent' && (empty($data['montant']) || (float)$data['montant'] <= 0)) {
             $_SESSION['error'] = 'Veuillez saisir un montant valide pour un don en argent.';
             header('Location: ' . BASE_URL . '/dons/create');
             exit;
         }
 
-        if ($typeDon !== 'argent' && (empty($data['quantite']) || (float)$data['quantite'] <= 0)) {
+        if ($typeNom !== 'argent' && (empty($data['quantite']) || (float)$data['quantite'] <= 0)) {
             $_SESSION['error'] = 'Veuillez saisir une quantité valide.';
             header('Location: ' . BASE_URL . '/dons/create');
             exit;
+        }
+
+        if ($typeNom === 'argent') {
+            $data['designation'] = null;
+            $data['quantite'] = null;
+        } else {
+            $data['montant'] = null;
         }
 
         $donModel->create($data);
@@ -85,6 +96,7 @@ class DonController
     public function edit(int $id): void
     {
         $donModel = new Don($this->db);
+        $typeModel = new Type($this->db);
 
         $don = $donModel->find($id);
         if (!$don) {
@@ -93,7 +105,7 @@ class DonController
             exit;
         }
 
-        $typesDons = $donModel->getTypesDons();
+        $typesDons = $typeModel->findAll();
 
         echo $this->view->renderWithLayout('bngrc/dons/form', [
             'pageTitle' => 'Modifier le Don',
@@ -105,37 +117,47 @@ class DonController
     public function update(int $id): void
     {
         $donModel = new Don($this->db);
+        $typeModel = new Type($this->db);
         
-        $typeDon = trim($_POST['type_don'] ?? '');
+        $typeId = (int) ($_POST['type_id'] ?? 0);
+        $type = $typeModel->find($typeId);
+        $typeNom = $type ? strtolower(trim((string) $type['nom'])) : '';
         $data = [
-            'type_don' => $typeDon,
+            'type_id' => $typeId,
             'designation' => $_POST['designation'] ?? null,
             'montant' => $_POST['montant'] ?? null,
             'quantite' => $_POST['quantite'] ?? null,
         ];
 
-        if (empty($data['type_don'])) {
+        if ($typeId <= 0 || !$type) {
             $_SESSION['error'] = 'Veuillez sélectionner le type de don.';
             header('Location: ' . BASE_URL . '/dons/edit/' . $id);
             exit;
         }
 
-        if ($typeDon !== 'argent' && empty(trim($data['designation'] ?? ''))) {
+        if ($typeNom !== 'argent' && empty(trim($data['designation'] ?? ''))) {
             $_SESSION['error'] = 'Veuillez saisir la désignation du don.';
             header('Location: ' . BASE_URL . '/dons/edit/' . $id);
             exit;
         }
 
-        if ($typeDon === 'argent' && (empty($data['montant']) || (float)$data['montant'] <= 0)) {
+        if ($typeNom === 'argent' && (empty($data['montant']) || (float)$data['montant'] <= 0)) {
             $_SESSION['error'] = 'Veuillez saisir un montant valide.';
             header('Location: ' . BASE_URL . '/dons/edit/' . $id);
             exit;
         }
 
-        if ($typeDon !== 'argent' && (empty($data['quantite']) || (float)$data['quantite'] <= 0)) {
+        if ($typeNom !== 'argent' && (empty($data['quantite']) || (float)$data['quantite'] <= 0)) {
             $_SESSION['error'] = 'Veuillez saisir une quantité valide.';
             header('Location: ' . BASE_URL . '/dons/edit/' . $id);
             exit;
+        }
+
+        if ($typeNom === 'argent') {
+            $data['designation'] = null;
+            $data['quantite'] = null;
+        } else {
+            $data['montant'] = null;
         }
 
         $donModel->update($id, $data);

@@ -12,6 +12,15 @@
 function formatMontant($montant): string {
     return number_format((float)($montant ?? 0), 0, ',', ' ') . ' Ar';
 }
+
+function formatBesoinLabel(array $achat): string {
+    $designation = trim((string)($achat['besoin_designation'] ?? ''));
+    $type = trim((string)($achat['type_besoin'] ?? ''));
+    if ($designation !== '' && $type !== '' && strcasecmp($designation, $type) !== 0) {
+        return $designation . ' (' . $type . ')';
+    }
+    return $designation !== '' ? $designation : $type;
+}
 ?>
 
 <div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-3 border-bottom">
@@ -202,7 +211,7 @@ function formatMontant($montant): string {
                             <tr>
                                 <td><?= date('d/m/Y H:i', strtotime($achat['date_achat'])) ?></td>
                                 <td><strong><?= htmlspecialchars($achat['ville_nom']) ?></strong></td>
-                                <td><span class="badge bg-primary"><?= htmlspecialchars($achat['type_besoin']) ?></span></td>
+                                <td><span class="badge bg-primary"><?= htmlspecialchars(formatBesoinLabel($achat)) ?></span></td>
                                 <td class="text-end"><?= formatMontant($achat['montant_achat']) ?></td>
                                 <td class="text-end"><?= number_format($achat['frais_percent'], 2) ?>%</td>
                                 <td class="text-end"><strong><?= formatMontant($achat['montant_total']) ?></strong></td>
