@@ -46,7 +46,9 @@ if (empty($app) === true) {
 $app->path(__DIR__ . $ds . '..' . $ds . '..');
 
 // Core config variables
-// $app->set('flight.base_url', '/');           // Base URL for your app. Change if app is in a subdirectory (e.g., '/myapp/')
+$base_url = '/';
+define('BASE_URL', $base_url);
+$app->set('flight.base_url', $base_url);           // Base URL for your app. Change if app is in a subdirectory (e.g., '/myapp/')
 $app->set('flight.case_sensitive', false);    // Set true for case sensitive routes. Default: false
 $app->set('flight.log_errors', true);         // Log errors to file. Recommended: true in production
 $app->set('flight.handle_errors', false);     // Let Tracy handle errors if false. Set true to use Flight's error handler
