@@ -1,3 +1,5 @@
+USE bngrc_db;
+
 CREATE TABLE achats (
     id INT AUTO_INCREMENT PRIMARY KEY,
     don_id INT NOT NULL,
