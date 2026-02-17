@@ -295,7 +295,7 @@ class Dispatch
     /**
      * Distribution proportionnelle :
      * attribution = floor(besoin / besoin_total * don)
-     * Le reste est distribué au plus grand besoin, puis au suivant, etc.
+     * Le reste est distribué un par un aux besoins ayant la plus grande partie décimale.
      */
     private function distribuerProportionnel(array $dons, array $besoinsMap): array
     {
@@ -347,21 +347,20 @@ class Dispatch
                 $totalDistribue += $partEntiere;
             }
 
-            // Phase 2 : distribuer le reste au plus grand besoin, puis au suivant, etc.
+            // Phase 2 : distribuer le reste (1 par 1) aux besoins avec le plus grand reste décimal
             $reste = (int) floor($quantiteDisponible - $totalDistribue);
             if ($reste > 0) {
-                // Trier par quantité restante décroissante
+                // Trier par partie décimale décroissante
                 uasort($attribTemp, function ($a, $b) {
-                    return (float) $b['besoin']['quantite_restante'] <=> (float) $a['besoin']['quantite_restante'];
+                    return $b['decimal'] <=> $a['decimal'];
                 });
 
                 foreach ($attribTemp as $besoinId => &$entry) {
                     if ($reste <= 0) break;
                     $maxAjout = (float) $entry['besoin']['quantite_restante'] - $entry['quantite'];
-                    $ajout = min($reste, (int) floor($maxAjout));
-                    if ($ajout > 0) {
-                        $entry['quantite'] += $ajout;
-                        $reste -= $ajout;
+                    if ($maxAjout >= 1) {
+                        $entry['quantite'] += 1;
+                        $reste -= 1;
                     }
                 }
                 unset($entry);
