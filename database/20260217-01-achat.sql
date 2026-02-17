@@ -17,5 +17,7 @@ CREATE TABLE achats (
 -- ================= PARAMETRES =================
 CREATE TABLE parametres (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    frais_achat_percent DECIMAL(5,2) NOT NULL DEFAULT 10.00
+    frais_achat_percent DECIMAL(5,2) NOT NULL DEFAULT 10.00,
+    mode_distribution VARCHAR(50) DEFAULT 'date'
+
 );
