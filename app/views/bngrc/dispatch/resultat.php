@@ -62,7 +62,7 @@
                     <tbody>
                         <?php foreach ($attributions as $attr): ?>
                             <tr>
-                                <td><span class="badge bg-primary"><?= htmlspecialchars($attr['type']) ?></span></td>
+                                <td><span class="badge bg-primary"><?= htmlspecialchars($attr['type_don']) ?></span></td>
                                 <td class="text-end"><?= number_format($attr['quantite_attribuee']) ?></td>
                                 <td><?= htmlspecialchars($attr['ville']) ?></td>
                                 <td><?= htmlspecialchars($attr['region']) ?></td>

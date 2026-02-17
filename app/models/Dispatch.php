@@ -16,7 +16,7 @@ class Dispatch
     public function findAll(): array
     {
         $sql = "SELECT dp.*, 
-                       d.type as don_type, d.quantite as don_quantite, d.date_don,
+                       d.type_don as don_type, d.quantite as don_quantite, d.montant as don_montant, d.date_don,
                        b.type_besoin, b.prix_unitaire,
                        v.nom as ville_nom, r.nom as region_nom
                 FROM dispatch dp
@@ -32,7 +32,7 @@ class Dispatch
     public function find(int $id): ?array
     {
         $sql = "SELECT dp.*, 
-                       d.type as don_type, d.quantite as don_quantite, d.date_don,
+                       d.type_don as don_type, d.quantite as don_quantite, d.montant as don_montant, d.date_don,
                        b.type_besoin, b.prix_unitaire,
                        v.nom as ville_nom, r.nom as region_nom
                 FROM dispatch dp
@@ -84,11 +84,16 @@ class Dispatch
 
     private function dispatchDon(array $don, array &$attributions, Besoin $besoinModel, Don $donModel): void
     {
-        $quantiteRestante = $don['quantite'];
-        $typeDon = $don['type'];
+        // Les dons en argent ne sont pas dispatchés directement (ils passent par les achats)
+        if ($don['type_don'] === 'argent') {
+            return;
+        }
+
+        $quantiteRestante = (float) $don['restant'];
+        $typeDon = $don['type_don'];
         
-        // Récupère les besoins non satisfaits pour ce type
-        $besoins = $besoinModel->getBesoinsNonSatisfaits($typeDon);
+        // Récupère les besoins non satisfaits (tous types pour nature/materiaux)
+        $besoins = $besoinModel->getBesoinsNonSatisfaits();
         
         foreach ($besoins as $besoin) {
             if ($quantiteRestante <= 0) break;
@@ -108,7 +113,7 @@ class Dispatch
             
             $attributions[] = [
                 'don_id' => $don['id'],
-                'type' => $typeDon,
+                'type_don' => $typeDon,
                 'quantite_attribuee' => $quantiteAttribuee,
                 'ville' => $besoin['ville_nom'],
                 'region' => $besoin['region_nom']
@@ -127,7 +132,7 @@ class Dispatch
     public function getHistoriqueParVille(int $villeId): array
     {
         $sql = "SELECT dp.*, 
-                       d.type as don_type, d.date_don,
+                       d.type_don as don_type, d.date_don,
                        b.type_besoin, b.prix_unitaire
                 FROM dispatch dp
                 JOIN dons d ON dp.don_id = d.id

@@ -53,8 +53,8 @@ function formatPourcentage($value, $total): string {
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
-                        <h6 class="text-muted mb-2">Total des dons</h6>
-                        <h3 class="mb-0"><?= $statsDons['quantite_totale'] ?? 0 ?></h3>
+                        <h6 class="text-muted mb-2">Total dons argent</h6>
+                        <h3 class="mb-0"><?= formatMontant($statsDons['total_argent'] ?? 0) ?></h3>
                         <small class="text-muted"><?= $statsDons['total_dons'] ?? 0 ?> dons reçus</small>
                     </div>
                     <div class="stat-icon bg-success bg-opacity-10 text-success">

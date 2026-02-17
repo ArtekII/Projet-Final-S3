@@ -32,23 +32,37 @@ class Don
     public function create(array $data): int
     {
         $stmt = $this->db->prepare(
-            "INSERT INTO dons (type, quantite) VALUES (?, ?)"
+            "INSERT INTO dons (type_don, montant, quantite, restant) VALUES (?, ?, ?, ?)"
         );
+
+        $montant = !empty($data['montant']) ? (float) $data['montant'] : null;
+        $quantite = !empty($data['quantite']) ? (float) $data['quantite'] : null;
+        // restant = montant pour argent, quantite pour nature/materiaux
+        $restant = $data['type_don'] === 'argent' ? $montant : $quantite;
+
         $stmt->execute([
-            $data['type'],
-            $data['quantite']
+            $data['type_don'],
+            $montant,
+            $quantite,
+            $restant
         ]);
         return (int) $this->db->lastInsertId();
     }
 
     public function update(int $id, array $data): bool
     {
+        $montant = !empty($data['montant']) ? (float) $data['montant'] : null;
+        $quantite = !empty($data['quantite']) ? (float) $data['quantite'] : null;
+        $restant = $data['type_don'] === 'argent' ? $montant : $quantite;
+
         $stmt = $this->db->prepare(
-            "UPDATE dons SET type = ?, quantite = ? WHERE id = ?"
+            "UPDATE dons SET type_don = ?, montant = ?, quantite = ?, restant = ? WHERE id = ?"
         );
         return $stmt->execute([
-            $data['type'],
-            $data['quantite'],
+            $data['type_don'],
+            $montant,
+            $quantite,
+            $restant,
             $id
         ]);
     }
@@ -70,7 +84,17 @@ class Don
      */
     public function getDonsNonDispatches(): array
     {
-        $sql = "SELECT * FROM dons WHERE dispatched = FALSE ORDER BY date_don ASC, id ASC";
+        $sql = "SELECT * FROM dons WHERE dispatched = FALSE AND type_don IN ('nature', 'materiaux') ORDER BY date_don ASC, id ASC";
+        $stmt = $this->db->query($sql);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Récupère les dons en argent avec du restant
+     */
+    public function getDonsArgentDisponibles(): array
+    {
+        $sql = "SELECT * FROM dons WHERE type_don = 'argent' AND restant > 0 ORDER BY date_don ASC, id ASC";
         $stmt = $this->db->query($sql);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
@@ -82,9 +106,13 @@ class Don
     {
         $sql = "SELECT 
                     COUNT(*) as total_dons,
-                    SUM(quantite) as quantite_totale,
+                    SUM(COALESCE(montant, 0)) as montant_total,
+                    SUM(COALESCE(quantite, 0)) as quantite_totale,
+                    SUM(COALESCE(restant, 0)) as restant_total,
                     SUM(CASE WHEN dispatched = TRUE THEN 1 ELSE 0 END) as dons_dispatches,
-                    SUM(CASE WHEN dispatched = FALSE THEN 1 ELSE 0 END) as dons_en_attente
+                    SUM(CASE WHEN dispatched = FALSE THEN 1 ELSE 0 END) as dons_en_attente,
+                    SUM(CASE WHEN type_don = 'argent' THEN COALESCE(montant, 0) ELSE 0 END) as total_argent,
+                    SUM(CASE WHEN type_don = 'argent' THEN COALESCE(restant, 0) ELSE 0 END) as argent_restant
                 FROM dons";
         
         $stmt = $this->db->query($sql);
@@ -114,8 +142,19 @@ class Don
      */
     public function getTypesDons(): array
     {
-        $sql = "SELECT DISTINCT type FROM dons ORDER BY type";
+        $sql = "SELECT DISTINCT type_don FROM dons ORDER BY type_don";
         $stmt = $this->db->query($sql);
         return $stmt->fetchAll(\PDO::FETCH_COLUMN);
+    }
+
+    /**
+     * Met à jour le restant d'un don
+     */
+    public function updateRestant(int $id, float $montantUtilise): bool
+    {
+        $stmt = $this->db->prepare(
+            "UPDATE dons SET restant = restant - ? WHERE id = ?"
+        );
+        return $stmt->execute([$montantUtilise, $id]);
     }
 }

@@ -44,13 +44,27 @@ class DonController
     {
         $donModel = new Don($this->db);
         
+        $typeDon = trim($_POST['type_don'] ?? '');
         $data = [
-            'type' => trim($_POST['type'] ?? ''),
-            'quantite' => (float) ($_POST['quantite'] ?? 0)
+            'type_don' => $typeDon,
+            'montant' => $_POST['montant'] ?? null,
+            'quantite' => $_POST['quantite'] ?? null,
         ];
 
-        if (empty($data['type']) || $data['quantite'] <= 0) {
-            $_SESSION['error'] = 'Veuillez remplir tous les champs obligatoires.';
+        if (empty($data['type_don'])) {
+            $_SESSION['error'] = 'Veuillez sélectionner le type de don.';
+            header('Location: ' . BASE_URL . '/dons/create');
+            exit;
+        }
+
+        if ($typeDon === 'argent' && (empty($data['montant']) || (float)$data['montant'] <= 0)) {
+            $_SESSION['error'] = 'Veuillez saisir un montant valide pour un don en argent.';
+            header('Location: ' . BASE_URL . '/dons/create');
+            exit;
+        }
+
+        if ($typeDon !== 'argent' && (empty($data['quantite']) || (float)$data['quantite'] <= 0)) {
+            $_SESSION['error'] = 'Veuillez saisir une quantité valide.';
             header('Location: ' . BASE_URL . '/dons/create');
             exit;
         }
@@ -85,13 +99,27 @@ class DonController
     {
         $donModel = new Don($this->db);
         
+        $typeDon = trim($_POST['type_don'] ?? '');
         $data = [
-            'type' => trim($_POST['type'] ?? ''),
-            'quantite' => (float) ($_POST['quantite'] ?? 0)
+            'type_don' => $typeDon,
+            'montant' => $_POST['montant'] ?? null,
+            'quantite' => $_POST['quantite'] ?? null,
         ];
 
-        if (empty($data['type']) || $data['quantite'] <= 0) {
-            $_SESSION['error'] = 'Veuillez remplir tous les champs obligatoires.';
+        if (empty($data['type_don'])) {
+            $_SESSION['error'] = 'Veuillez sélectionner le type de don.';
+            header('Location: ' . BASE_URL . '/dons/edit/' . $id);
+            exit;
+        }
+
+        if ($typeDon === 'argent' && (empty($data['montant']) || (float)$data['montant'] <= 0)) {
+            $_SESSION['error'] = 'Veuillez saisir un montant valide.';
+            header('Location: ' . BASE_URL . '/dons/edit/' . $id);
+            exit;
+        }
+
+        if ($typeDon !== 'argent' && (empty($data['quantite']) || (float)$data['quantite'] <= 0)) {
+            $_SESSION['error'] = 'Veuillez saisir une quantité valide.';
             header('Location: ' . BASE_URL . '/dons/edit/' . $id);
             exit;
         }

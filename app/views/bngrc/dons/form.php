@@ -26,31 +26,29 @@ $isEdit = $don !== null;
             <div class="card-body">
                 <form action="<?= BASE_URL ?>/dons/<?= $isEdit ? 'update/' . $don['id'] : 'store' ?>" method="POST">
                     <div class="mb-3">
-                        <label for="type" class="form-label">Type de don <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="type" name="type" 
-                               value="<?= htmlspecialchars($don['type'] ?? '') ?>" 
-                               list="types_dons_list" required placeholder="Ex: Riz, Huile, Argent...">
-                        <datalist id="types_dons_list">
-                            <?php foreach ($typesDons as $type): ?>
-                                <option value="<?= htmlspecialchars($type) ?>">
-                            <?php endforeach; ?>
-                            <option value="Riz">
-                            <option value="Huile">
-                            <option value="Tôle">
-                            <option value="Savon">
-                            <option value="Sucre">
-                            <option value="Argent">
-                            <option value="Eau">
-                            <option value="Médicaments">
-                        </datalist>
+                        <label for="type_don" class="form-label">Type de don <span class="text-danger">*</span></label>
+                        <select class="form-select" id="type_don" name="type_don" required onchange="toggleFields()">
+                            <option value="" disabled <?= !$isEdit ? 'selected' : '' ?>>-- Sélectionner --</option>
+                            <option value="argent" <?= ($don['type_don'] ?? '') === 'argent' ? 'selected' : '' ?>>💰 Argent</option>
+                            <option value="nature" <?= ($don['type_don'] ?? '') === 'nature' ? 'selected' : '' ?>>🌾 Nature</option>
+                            <option value="materiaux" <?= ($don['type_don'] ?? '') === 'materiaux' ? 'selected' : '' ?>>🧱 Matériaux</option>
+                        </select>
                     </div>
                     
-                    <div class="mb-3">
+                    <div class="mb-3" id="montant_group">
+                        <label for="montant" class="form-label">Montant (Ariary) <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control" id="montant" name="montant" 
+                               value="<?= htmlspecialchars($don['montant'] ?? '') ?>" 
+                               min="0.01" step="0.01">
+                        <small class="text-muted">Montant en Ariary</small>
+                    </div>
+
+                    <div class="mb-3" id="quantite_group">
                         <label for="quantite" class="form-label">Quantité <span class="text-danger">*</span></label>
                         <input type="number" class="form-control" id="quantite" name="quantite" 
                                value="<?= htmlspecialchars($don['quantite'] ?? '') ?>" 
-                               min="0.01" step="0.01" required>
-                        <small class="text-muted">Pour les dons en argent, saisir le montant en Ariary</small>
+                               min="0.01" step="0.01">
+                        <small class="text-muted">Quantité d'unités (kg, pièces, litres...)</small>
                     </div>
                     
                     <div class="d-flex gap-2">
@@ -62,6 +60,30 @@ $isEdit = $don !== null;
                         </a>
                     </div>
                 </form>
+
+                <script>
+                function toggleFields() {
+                    const typeDon = document.getElementById('type_don').value;
+                    const montantGroup = document.getElementById('montant_group');
+                    const quantiteGroup = document.getElementById('quantite_group');
+                    
+                    if (typeDon === 'argent') {
+                        montantGroup.style.display = 'block';
+                        quantiteGroup.style.display = 'none';
+                        document.getElementById('montant').required = true;
+                        document.getElementById('quantite').required = false;
+                        document.getElementById('quantite').value = '';
+                    } else {
+                        montantGroup.style.display = 'none';
+                        quantiteGroup.style.display = 'block';
+                        document.getElementById('montant').required = false;
+                        document.getElementById('quantite').required = true;
+                        document.getElementById('montant').value = '';
+                    }
+                }
+                // Initialiser au chargement
+                document.addEventListener('DOMContentLoaded', toggleFields);
+                </script>
             </div>
         </div>
     </div>
@@ -73,16 +95,15 @@ $isEdit = $don !== null;
             </div>
             <div class="card-body">
                 <p class="text-muted mb-3">
-                    Les dons enregistrés seront automatiquement attribués aux villes ayant des besoins 
-                    correspondants lors du dispatch.
+                    Les dons enregistrés seront gérés selon leur type.
                 </p>
                 <p class="text-muted mb-0">
-                    <strong>Règles de dispatch :</strong>
+                    <strong>Types de dons :</strong>
                 </p>
                 <ul class="text-muted">
-                    <li>Les dons sont dispatchés par ordre chronologique de saisie</li>
-                    <li>Les dons sont attribués aux besoins du même type</li>
-                    <li>Un don de type "Riz" sera attribué aux besoins de type "Riz"</li>
+                    <li><strong>💰 Argent</strong> : Saisir le montant en Ariary. L'argent sera utilisé pour acheter des besoins (avec frais d'achat).</li>
+                    <li><strong>🌾 Nature</strong> : Don en nature (riz, huile, savon...). Dispatché directement aux villes.</li>
+                    <li><strong>🧱 Matériaux</strong> : Don de matériaux (tôle, tente...). Dispatché directement aux villes.</li>
                 </ul>
             </div>
         </div>
