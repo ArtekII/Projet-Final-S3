@@ -290,20 +290,21 @@ class Dispatch
             }
             unset($besoin);
 
-            // Phase 2 : distribuer le reste (1 par 1) aux besoins avec le plus gros décimal
-            $reste = $quantiteDisponible - $totalDistribue;
+            // Phase 2 : distribuer le reste au plus grand besoin, puis au suivant, etc.
+            $reste = (int) floor($quantiteDisponible - $totalDistribue);
             if ($reste > 0) {
-                // Trier par partie décimale décroissante
+                // Trier par quantité restante décroissante
                 uasort($attribTemp, function ($a, $b) {
-                    return $b['decimal'] <=> $a['decimal'];
+                    return (float) $b['besoin']['quantite_restante'] <=> (float) $a['besoin']['quantite_restante'];
                 });
 
                 foreach ($attribTemp as $besoinId => &$entry) {
                     if ($reste <= 0) break;
                     $maxAjout = (float) $entry['besoin']['quantite_restante'] - $entry['quantite'];
-                    if ($maxAjout >= 1) {
-                        $entry['quantite'] += 1;
-                        $reste -= 1;
+                    $ajout = min($reste, (int) floor($maxAjout));
+                    if ($ajout > 0) {
+                        $entry['quantite'] += $ajout;
+                        $reste -= $ajout;
                     }
                 }
                 unset($entry);
