@@ -119,6 +119,55 @@
                 <?php endif; ?>
 
                 <?= $content ?>
+
+                <!-- Footer -->
+                <footer class="site-footer mt-5">
+                    <div class="footer-top">
+                        <div class="row g-4">
+                            <div class="col-md-4">
+                                <div class="footer-brand">
+                                    <i class="bi bi-heart-pulse-fill"></i>
+                                    <span>BNGRC</span>
+                                </div>
+                                <p class="footer-desc">
+                                    Bureau National de Gestion des Risques et des Catastrophes — 
+                                    Système de gestion et de distribution des dons pour les populations sinistrées de Madagascar.
+                                </p>
+                            </div>
+                            <div class="col-md-4">
+                                <h6 class="footer-heading">Liens rapides</h6>
+                                <ul class="footer-links">
+                                    <li><a href="<?= BASE_URL ?>/dashboard"><i class="bi bi-speedometer2"></i>Tableau de bord</a></li>
+                                    <li><a href="<?= BASE_URL ?>/besoins"><i class="bi bi-clipboard-check"></i>Besoins</a></li>
+                                    <li><a href="<?= BASE_URL ?>/dons"><i class="bi bi-gift"></i>Dons</a></li>
+                                    <li><a href="<?= BASE_URL ?>/dispatch"><i class="bi bi-arrow-left-right"></i>Dispatch</a></li>
+                                    <li><a href="<?= BASE_URL ?>/recap"><i class="bi bi-bar-chart"></i>Récapitulation</a></li>
+                                </ul>
+                            </div>
+                            <div class="col-md-4">
+                                <h6 class="footer-heading">Contact & Équipe</h6>
+                                <ul class="footer-contact">
+                                    <li><i class="bi bi-geo-alt-fill"></i>Antananarivo, Madagascar</li>
+                                    <li><i class="bi bi-envelope-fill"></i>contact@bngrc.mg</li>
+                                    <li><i class="bi bi-telephone-fill"></i>+261 20 22 211 02</li>
+                                </ul>
+                                <div class="footer-team">
+                                    <span class="footer-team-label">Développé par :</span>
+                                    <div class="footer-badges">
+                                        <span class="footer-badge">ETU004248</span>
+                                        <span class="footer-badge">ETU004310</span>
+                                        <span class="footer-badge">ETU004312</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="footer-bottom">
+                        <span>&copy; <?= date('Y') ?> BNGRC — Tous droits réservés</span>
+                        <span class="footer-separator">|</span>
+                        <span>Projet Final S3 — Université de Madagascar</span>
+                    </div>
+                </footer>
             </main>
         </div>
 

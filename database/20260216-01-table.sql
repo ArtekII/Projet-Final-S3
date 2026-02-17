@@ -29,6 +29,8 @@ CREATE TABLE besoins (
     quantite_demandee DECIMAL(15,2) NOT NULL,
     quantite_recue DECIMAL(15,2) DEFAULT 0,
     prix_unitaire DECIMAL(15,2) NOT NULL,
+    date_besoin DATE NULL,
+    ordre INT NULL,
     date_saisie TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (ville_id) REFERENCES villes(id),
     FOREIGN KEY (type_id) REFERENCES type(id)

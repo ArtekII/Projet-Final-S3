@@ -60,6 +60,26 @@ $isEdit = $besoin !== null;
                                placeholder="Ex: Riz local, Tente familiale...">
                         <small class="text-muted">Utilisée pour matcher les dons lors du dispatch (ex: Riz, Tente, Tôle).</small>
                     </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="date_besoin" class="form-label">Date du besoin</label>
+                                <input type="date" class="form-control" id="date_besoin" name="date_besoin" 
+                                       value="<?= htmlspecialchars($besoin['date_besoin'] ?? date('Y-m-d')) ?>">
+                                <small class="text-muted">Date à laquelle le besoin a été identifié.</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="ordre" class="form-label">Ordre de priorité</label>
+                                <input type="number" class="form-control" id="ordre" name="ordre" 
+                                       value="<?= htmlspecialchars($besoin['ordre'] ?? '') ?>" 
+                                       min="1" step="1" placeholder="Ex: 1, 2, 3...">
+                                <small class="text-muted">Ordre de priorité (1 = le plus urgent).</small>
+                            </div>
+                        </div>
+                    </div>
                     
                     <div class="mb-3">
                         <label for="quantite_demandee" class="form-label">Quantité demandée <span class="text-danger">*</span></label>

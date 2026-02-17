@@ -54,6 +54,7 @@ class DonController
             'designation' => $_POST['designation'] ?? null,
             'montant' => $_POST['montant'] ?? null,
             'quantite' => $_POST['quantite'] ?? null,
+            'date_don' => !empty($_POST['date_don']) ? $_POST['date_don'] : date('Y-m-d'),
         ];
 
         if ($typeId <= 0 || !$type) {
@@ -127,6 +128,7 @@ class DonController
             'designation' => $_POST['designation'] ?? null,
             'montant' => $_POST['montant'] ?? null,
             'quantite' => $_POST['quantite'] ?? null,
+            'date_don' => !empty($_POST['date_don']) ? $_POST['date_don'] : date('Y-m-d'),
         ];
 
         if ($typeId <= 0 || !$type) {

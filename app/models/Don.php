@@ -38,7 +38,7 @@ class Don
     public function create(array $data): int
     {
         $stmt = $this->db->prepare(
-            "INSERT INTO dons (type_id, designation, montant, quantite, restant) VALUES (?, ?, ?, ?, ?)"
+            "INSERT INTO dons (type_id, designation, montant, quantite, restant, date_don) VALUES (?, ?, ?, ?, ?, ?)"
         );
 
         $montant = !empty($data['montant']) ? (float) $data['montant'] : null;
@@ -47,13 +47,15 @@ class Don
         $typeNom = $this->getTypeNom((int) $data['type_id']);
         // restant = montant pour argent, quantite pour les autres types
         $restant = $typeNom === 'argent' ? $montant : $quantite;
+        $dateDon = !empty($data['date_don']) ? $data['date_don'] : date('Y-m-d');
 
         $stmt->execute([
             $data['type_id'],
             $designation,
             $montant,
             $quantite,
-            $restant
+            $restant,
+            $dateDon
         ]);
         return (int) $this->db->lastInsertId();
     }
@@ -66,8 +68,10 @@ class Don
         $typeNom = $this->getTypeNom((int) $data['type_id']);
         $restant = $typeNom === 'argent' ? $montant : $quantite;
 
+        $dateDon = !empty($data['date_don']) ? $data['date_don'] : date('Y-m-d');
+
         $stmt = $this->db->prepare(
-            "UPDATE dons SET type_id = ?, designation = ?, montant = ?, quantite = ?, restant = ? WHERE id = ?"
+            "UPDATE dons SET type_id = ?, designation = ?, montant = ?, quantite = ?, restant = ?, date_don = ? WHERE id = ?"
         );
         return $stmt->execute([
             $data['type_id'],
@@ -75,6 +79,7 @@ class Don
             $montant,
             $quantite,
             $restant,
+            $dateDon,
             $id
         ]);
     }

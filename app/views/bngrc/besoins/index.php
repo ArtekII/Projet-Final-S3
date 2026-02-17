@@ -27,6 +27,8 @@ function formatMontant($montant): string {
                         <th>Région</th>
                         <th>Type de besoin</th>
                         <th>Désignation</th>
+                        <th>Date</th>
+                        <th class="text-center">Ordre</th>
                         <th class="text-end">Quantité demandée</th>
                         <th class="text-end">Quantité reçue</th>
                         <th class="text-end">Prix unitaire</th>
@@ -37,7 +39,7 @@ function formatMontant($montant): string {
                 <tbody>
                     <?php if (empty($besoins)): ?>
                         <tr>
-                            <td colspan="9" class="text-center text-muted py-4">
+                            <td colspan="11" class="text-center text-muted py-4">
                                 <i class="bi bi-inbox display-4 d-block mb-2"></i>
                                 Aucun besoin enregistré
                             </td>
@@ -49,6 +51,8 @@ function formatMontant($montant): string {
                                 <td><?= htmlspecialchars($besoin['region_nom']) ?></td>
                                 <td><span class="badge bg-primary"><?= htmlspecialchars($besoin['type_besoin']) ?></span></td>
                                 <td><?= !empty($besoin['designation']) ? htmlspecialchars($besoin['designation']) : '-' ?></td>
+                                <td><?= !empty($besoin['date_besoin']) ? date('d/m/Y', strtotime($besoin['date_besoin'])) : '-' ?></td>
+                                <td class="text-center"><?= !empty($besoin['ordre']) ? $besoin['ordre'] : '-' ?></td>
                                 <td class="text-end"><?= number_format($besoin['quantite_demandee']) ?></td>
                                 <td class="text-end">
                                     <?= number_format($besoin['quantite_recue']) ?>

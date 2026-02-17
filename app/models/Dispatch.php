@@ -246,9 +246,18 @@ class Dispatch
                 break;
             case 'date':
             default:
-                // Par date de saisie (ordre chronologique)
+                // Par date du besoin (chronologique), puis par ordre de priorité si même date
                 uasort($besoinsMap, function ($a, $b) {
-                    return ($a['date_saisie'] ?? '') <=> ($b['date_saisie'] ?? '');
+                    $dateA = $a['date_besoin'] ?? $a['date_saisie'] ?? '';
+                    $dateB = $b['date_besoin'] ?? $b['date_saisie'] ?? '';
+                    $cmpDate = $dateA <=> $dateB;
+                    if ($cmpDate !== 0) {
+                        return $cmpDate;
+                    }
+                    // Même date : trier par ordre de priorité (1 = le plus urgent)
+                    $ordreA = (int) ($a['ordre'] ?? PHP_INT_MAX);
+                    $ordreB = (int) ($b['ordre'] ?? PHP_INT_MAX);
+                    return $ordreA <=> $ordreB;
                 });
                 break;
         }

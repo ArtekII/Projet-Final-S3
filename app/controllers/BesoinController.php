@@ -56,7 +56,9 @@ class BesoinController
             'type_id' => (int) ($_POST['type_id'] ?? 0),
             'designation' => null,
             'quantite_demandee' => (float) ($_POST['quantite_demandee'] ?? 0),
-            'prix_unitaire' => (float) ($_POST['prix_unitaire'] ?? 0)
+            'prix_unitaire' => (float) ($_POST['prix_unitaire'] ?? 0),
+            'date_besoin' => !empty($_POST['date_besoin']) ? $_POST['date_besoin'] : null,
+            'ordre' => !empty($_POST['ordre']) ? (int) $_POST['ordre'] : null
         ];
         $designation = trim($_POST['designation'] ?? '');
         $data['designation'] = $designation !== '' ? $designation : null;
@@ -108,7 +110,9 @@ class BesoinController
             'type_id' => (int) ($_POST['type_id'] ?? 0),
             'designation' => null,
             'quantite_demandee' => (float) ($_POST['quantite_demandee'] ?? 0),
-            'prix_unitaire' => (float) ($_POST['prix_unitaire'] ?? 0)
+            'prix_unitaire' => (float) ($_POST['prix_unitaire'] ?? 0),
+            'date_besoin' => !empty($_POST['date_besoin']) ? $_POST['date_besoin'] : null,
+            'ordre' => !empty($_POST['ordre']) ? (int) $_POST['ordre'] : null
         ];
         $designation = trim($_POST['designation'] ?? '');
         $data['designation'] = $designation !== '' ? $designation : null;

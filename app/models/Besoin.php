@@ -42,14 +42,16 @@ class Besoin
     public function create(array $data): int
     {
         $stmt = $this->db->prepare(
-            "INSERT INTO besoins (ville_id, type_id, designation, quantite_demandee, prix_unitaire) VALUES (?, ?, ?, ?, ?)"
+            "INSERT INTO besoins (ville_id, type_id, designation, quantite_demandee, prix_unitaire, date_besoin, ordre) VALUES (?, ?, ?, ?, ?, ?, ?)"
         );
         $stmt->execute([
             $data['ville_id'],
             $data['type_id'],
             $data['designation'] ?? null,
             $data['quantite_demandee'],
-            $data['prix_unitaire'] ?? 0
+            $data['prix_unitaire'] ?? 0,
+            $data['date_besoin'] ?? null,
+            $data['ordre'] ?? null
         ]);
         return (int) $this->db->lastInsertId();
     }
@@ -57,7 +59,7 @@ class Besoin
     public function update(int $id, array $data): bool
     {
         $stmt = $this->db->prepare(
-            "UPDATE besoins SET ville_id = ?, type_id = ?, designation = ?, quantite_demandee = ?, prix_unitaire = ? WHERE id = ?"
+            "UPDATE besoins SET ville_id = ?, type_id = ?, designation = ?, quantite_demandee = ?, prix_unitaire = ?, date_besoin = ?, ordre = ? WHERE id = ?"
         );
         return $stmt->execute([
             $data['ville_id'],
@@ -65,6 +67,8 @@ class Besoin
             $data['designation'] ?? null,
             $data['quantite_demandee'],
             $data['prix_unitaire'] ?? 0,
+            $data['date_besoin'] ?? null,
+            $data['ordre'] ?? null,
             $id
         ]);
     }

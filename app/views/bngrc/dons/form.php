@@ -26,15 +26,12 @@ $isEdit = $don !== null;
             <div class="card-body">
                 <form action="<?= BASE_URL ?>/dons/<?= $isEdit ? 'update/' . $don['id'] : 'store' ?>" method="POST">
                     <div class="mb-3">
-                        <label for="type_id" class="form-label">Type de don <span class="text-danger">*</span></label>
-                        <select class="form-select" id="type_id" name="type_id" required onchange="toggleFields()">
+                        <label for="type_don" class="form-label">Type de don <span class="text-danger">*</span></label>
+                        <select class="form-select" id="type_don" name="type_don" required onchange="toggleFields()">
                             <option value="" disabled <?= !$isEdit ? 'selected' : '' ?>>-- Sélectionner --</option>
-                            <?php foreach ($typesDons as $type): ?>
-                                <?php $isSelected = ($don['type_id'] ?? null) == $type['id']; ?>
-                                <option value="<?= $type['id'] ?>" data-nom="<?= htmlspecialchars(strtolower($type['nom'])) ?>" <?= $isSelected ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($type['nom']) ?>
-                                </option>
-                            <?php endforeach; ?>
+                            <option value="argent" <?= ($don['type_don'] ?? '') === 'argent' ? 'selected' : '' ?>>💰 Argent</option>
+                            <option value="nature" <?= ($don['type_don'] ?? '') === 'nature' ? 'selected' : '' ?>>🌾 Nature</option>
+                            <option value="materiaux" <?= ($don['type_don'] ?? '') === 'materiaux' ? 'selected' : '' ?>>🧱 Matériaux</option>
                         </select>
                     </div>
 
@@ -43,7 +40,7 @@ $isEdit = $don !== null;
                         <input type="text" class="form-control" id="designation" name="designation" 
                                value="<?= htmlspecialchars($don['designation'] ?? '') ?>" 
                                placeholder="Ex: riz, tôle, tente, médicaments...">
-                        <small class="text-muted">Doit correspondre à la désignation du besoin pour le dispatch.</small>
+                        <small class="text-muted">Nom spécifique du don</small>
                     </div>
                     
                     <div class="mb-3" id="montant_group">
@@ -61,6 +58,13 @@ $isEdit = $don !== null;
                                min="0.01" step="0.01">
                         <small class="text-muted">Quantité d'unités (kg, pièces, litres...)</small>
                     </div>
+
+                    <div class="mb-3">
+                        <label for="date_don" class="form-label">Date du don</label>
+                        <input type="date" class="form-control" id="date_don" name="date_don" 
+                               value="<?= htmlspecialchars(!empty($don['date_don']) ? date('Y-m-d', strtotime($don['date_don'])) : date('Y-m-d')) ?>">
+                        <small class="text-muted">Date à laquelle le don a été reçu.</small>
+                    </div>
                     
                     <div class="d-flex gap-2">
                         <button type="submit" class="btn btn-primary">
@@ -74,23 +78,11 @@ $isEdit = $don !== null;
 
                 <script>
                 function toggleFields() {
-                    const typeSelect = document.getElementById('type_id');
-                    const selected = typeSelect.selectedOptions[0];
-                    const typeDon = selected ? (selected.dataset.nom || '') : '';
+                    const typeDon = document.getElementById('type_don').value;
                     const montantGroup = document.getElementById('montant_group');
                     const quantiteGroup = document.getElementById('quantite_group');
                     const designationGroup = document.getElementById('designation_group');
                     
-                    if (!typeDon) {
-                        montantGroup.style.display = 'none';
-                        quantiteGroup.style.display = 'none';
-                        designationGroup.style.display = 'none';
-                        document.getElementById('montant').required = false;
-                        document.getElementById('quantite').required = false;
-                        document.getElementById('designation').required = false;
-                        return;
-                    }
-
                     if (typeDon === 'argent') {
                         montantGroup.style.display = 'block';
                         quantiteGroup.style.display = 'none';
@@ -130,10 +122,9 @@ $isEdit = $don !== null;
                     <strong>Types de dons :</strong>
                 </p>
                 <ul class="text-muted">
-                    <li><strong>Argent</strong> : Saisir le montant en Ariary. L'argent sera utilisé pour acheter des besoins (avec frais d'achat).</li>
-                    <li><strong>Nature</strong> : Don en nature (riz, huile, savon...). Dispatché directement aux villes.</li>
-                    <li><strong>Matériaux</strong> : Don de matériaux (tôle, tente...). Dispatché directement aux villes.</li>
-                    <li><strong>Désignation</strong> : Doit être la même que celle d’un besoin pour être dispatché.</li>
+                    <li><strong>💰 Argent</strong> : Saisir le montant en Ariary. L'argent sera utilisé pour acheter des besoins (avec frais d'achat).</li>
+                    <li><strong>🌾 Nature</strong> : Don en nature (riz, huile, savon...). Dispatché directement aux villes.</li>
+                    <li><strong>🧱 Matériaux</strong> : Don de matériaux (tôle, tente...). Dispatché directement aux villes.</li>
                 </ul>
             </div>
         </div>
