@@ -30,21 +30,28 @@ class DispatchController
         ]);
     }
 
+    /**
+     * Simulation : aperçu sans persister en BD
+     */
     public function simuler(): void
     {
         $dispatchModel = new Dispatch($this->db);
         $attributions = $dispatchModel->simulerDispatch();
 
         echo $this->view->renderWithLayout('bngrc/dispatch/resultat', [
-            'pageTitle' => 'Résultat du Dispatch',
-            'attributions' => $attributions
+            'pageTitle' => 'Simulation du Dispatch',
+            'attributions' => $attributions,
+            'isSimulation' => true
         ]);
     }
 
-    public function confirmerSimulation(): void
+    /**
+     * Validation : persiste réellement le dispatch en BD
+     */
+    public function valider(): void
     {
         $dispatchModel = new Dispatch($this->db);
-        $attributions = $dispatchModel->simulerDispatch();
+        $attributions = $dispatchModel->validerDispatch();
 
         if (count($attributions) > 0) {
             $_SESSION['success'] = count($attributions) . ' attribution(s) effectuée(s) avec succès.';

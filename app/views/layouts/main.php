@@ -155,8 +155,18 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link <?= strpos($_SERVER['REQUEST_URI'], '/achats') !== false ? 'active' : '' ?>" href="<?= BASE_URL ?>/achats">
+                                <i class="bi bi-cart-check"></i>Achats
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link <?= strpos($_SERVER['REQUEST_URI'], '/dispatch') !== false ? 'active' : '' ?>" href="<?= BASE_URL ?>/dispatch">
                                 <i class="bi bi-arrow-left-right"></i>Dispatch
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link <?= strpos($_SERVER['REQUEST_URI'], '/recap') !== false ? 'active' : '' ?>" href="<?= BASE_URL ?>/recap">
+                                <i class="bi bi-bar-chart"></i>Récapitulation
                             </a>
                         </li>
                     </ul>

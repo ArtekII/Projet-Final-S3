@@ -6,6 +6,8 @@ use app\controllers\RegionController;
 use app\controllers\BesoinController;
 use app\controllers\DonController;
 use app\controllers\DispatchController;
+use app\controllers\AchatController;
+use app\controllers\RecapController;
 use app\middlewares\SecurityHeadersMiddleware;
 use flight\Engine;
 use flight\net\Router;
@@ -184,7 +186,43 @@ $router->get('/dispatch/simuler', function () use ($db, $view) {
     $controller->simuler();
 });
 
-$router->post('/dispatch/confirmer', function () use ($db, $view) {
+$router->post('/dispatch/valider', function () use ($db, $view) {
     $controller = new DispatchController($db, $view);
-    $controller->confirmerSimulation();
+    $controller->valider();
+});
+
+// ==========================================
+// Achats
+// ==========================================
+$router->get('/achats', function () use ($db, $view) {
+    $controller = new AchatController($db, $view);
+    $controller->index();
+});
+
+$router->get('/achats/create', function () use ($db, $view) {
+    $controller = new AchatController($db, $view);
+    $controller->create();
+});
+
+$router->post('/achats/store', function () use ($db, $view) {
+    $controller = new AchatController($db, $view);
+    $controller->store();
+});
+
+$router->post('/achats/frais', function () use ($db, $view) {
+    $controller = new AchatController($db, $view);
+    $controller->updateFrais();
+});
+
+// ==========================================
+// Récapitulation
+// ==========================================
+$router->get('/recap', function () use ($db, $view) {
+    $controller = new RecapController($db, $view);
+    $controller->index();
+});
+
+$router->get('/recap/api', function () use ($db, $view) {
+    $controller = new RecapController($db, $view);
+    $controller->apiData();
 });

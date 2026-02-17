@@ -144,4 +144,25 @@ class Besoin
         $stmt = $this->db->query($sql);
         return $stmt->fetchAll(\PDO::FETCH_COLUMN);
     }
+
+    /**
+     * Récupère les statistiques des besoins groupées par type
+     */
+    public function getBesoinsParType(): array
+    {
+        $sql = "SELECT 
+                    type_besoin,
+                    COUNT(*) as nb_besoins,
+                    SUM(quantite_demandee) as total_demande,
+                    SUM(quantite_recue) as total_recu,
+                    SUM(quantite_demandee - quantite_recue) as total_restant,
+                    SUM(quantite_demandee * prix_unitaire) as valeur_demandee,
+                    SUM(quantite_recue * prix_unitaire) as valeur_recue,
+                    SUM((quantite_demandee - quantite_recue) * prix_unitaire) as valeur_restante
+                FROM besoins
+                GROUP BY type_besoin
+                ORDER BY type_besoin";
+        $stmt = $this->db->query($sql);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
 }
