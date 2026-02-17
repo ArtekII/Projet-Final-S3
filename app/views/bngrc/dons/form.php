@@ -34,6 +34,14 @@ $isEdit = $don !== null;
                             <option value="materiaux" <?= ($don['type_don'] ?? '') === 'materiaux' ? 'selected' : '' ?>>🧱 Matériaux</option>
                         </select>
                     </div>
+
+                    <div class="mb-3" id="designation_group">
+                        <label for="designation" class="form-label">Désignation <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="designation" name="designation" 
+                               value="<?= htmlspecialchars($don['designation'] ?? '') ?>" 
+                               placeholder="Ex: riz, tôle, tente, médicaments...">
+                        <small class="text-muted">Nom spécifique du don</small>
+                    </div>
                     
                     <div class="mb-3" id="montant_group">
                         <label for="montant" class="form-label">Montant (Ariary) <span class="text-danger">*</span></label>
@@ -66,18 +74,24 @@ $isEdit = $don !== null;
                     const typeDon = document.getElementById('type_don').value;
                     const montantGroup = document.getElementById('montant_group');
                     const quantiteGroup = document.getElementById('quantite_group');
+                    const designationGroup = document.getElementById('designation_group');
                     
                     if (typeDon === 'argent') {
                         montantGroup.style.display = 'block';
                         quantiteGroup.style.display = 'none';
+                        designationGroup.style.display = 'none';
                         document.getElementById('montant').required = true;
                         document.getElementById('quantite').required = false;
+                        document.getElementById('designation').required = false;
                         document.getElementById('quantite').value = '';
+                        document.getElementById('designation').value = '';
                     } else {
                         montantGroup.style.display = 'none';
                         quantiteGroup.style.display = 'block';
+                        designationGroup.style.display = 'block';
                         document.getElementById('montant').required = false;
                         document.getElementById('quantite').required = true;
+                        document.getElementById('designation').required = true;
                         document.getElementById('montant').value = '';
                     }
                 }

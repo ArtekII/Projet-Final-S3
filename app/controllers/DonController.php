@@ -47,12 +47,19 @@ class DonController
         $typeDon = trim($_POST['type_don'] ?? '');
         $data = [
             'type_don' => $typeDon,
+            'designation' => $_POST['designation'] ?? null,
             'montant' => $_POST['montant'] ?? null,
             'quantite' => $_POST['quantite'] ?? null,
         ];
 
         if (empty($data['type_don'])) {
             $_SESSION['error'] = 'Veuillez sélectionner le type de don.';
+            header('Location: ' . BASE_URL . '/dons/create');
+            exit;
+        }
+
+        if ($typeDon !== 'argent' && empty(trim($data['designation'] ?? ''))) {
+            $_SESSION['error'] = 'Veuillez saisir la désignation du don.';
             header('Location: ' . BASE_URL . '/dons/create');
             exit;
         }
@@ -102,12 +109,19 @@ class DonController
         $typeDon = trim($_POST['type_don'] ?? '');
         $data = [
             'type_don' => $typeDon,
+            'designation' => $_POST['designation'] ?? null,
             'montant' => $_POST['montant'] ?? null,
             'quantite' => $_POST['quantite'] ?? null,
         ];
 
         if (empty($data['type_don'])) {
             $_SESSION['error'] = 'Veuillez sélectionner le type de don.';
+            header('Location: ' . BASE_URL . '/dons/edit/' . $id);
+            exit;
+        }
+
+        if ($typeDon !== 'argent' && empty(trim($data['designation'] ?? ''))) {
+            $_SESSION['error'] = 'Veuillez saisir la désignation du don.';
             header('Location: ' . BASE_URL . '/dons/edit/' . $id);
             exit;
         }

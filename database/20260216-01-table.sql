@@ -20,6 +20,7 @@ CREATE TABLE besoins (
     id INT AUTO_INCREMENT PRIMARY KEY,
     ville_id INT NOT NULL,
     type_besoin VARCHAR(50) NOT NULL, -- nature / materiaux
+    designation VARCHAR(100) NULL,
     quantite_demandee DECIMAL(15,2) NOT NULL,
     quantite_recue DECIMAL(15,2) DEFAULT 0,
     prix_unitaire DECIMAL(15,2) NOT NULL,
@@ -31,6 +32,7 @@ CREATE TABLE besoins (
 CREATE TABLE dons (
     id INT AUTO_INCREMENT PRIMARY KEY,
     type_don VARCHAR(50) NOT NULL, -- argent / nature / materiaux
+    designation VARCHAR(100) NULL, -- nom spécifique du don (riz, tente, etc.)
     montant DECIMAL(15,2) NULL,
     quantite DECIMAL(15,2) NULL,
     restant DECIMAL(15,2) NOT NULL,

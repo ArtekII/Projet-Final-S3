@@ -21,6 +21,7 @@
                     <tr>
                         <th>Date</th>
                         <th>Type</th>
+                        <th>Désignation</th>
                         <th class="text-end">Montant</th>
                         <th class="text-end">Quantité</th>
                         <th class="text-end">Restant</th>
@@ -31,7 +32,7 @@
                 <tbody>
                     <?php if (empty($dons)): ?>
                         <tr>
-                            <td colspan="7" class="text-center text-muted py-4">
+                            <td colspan="8" class="text-center text-muted py-4">
                                 <i class="bi bi-inbox display-4 d-block mb-2"></i>
                                 Aucun don enregistré
                             </td>
@@ -51,6 +52,7 @@
                                     ?>
                                     <span class="badge <?= $badgeClass ?>"><?= htmlspecialchars($don['type_don']) ?></span>
                                 </td>
+                                <td><?= !empty($don['designation']) ? htmlspecialchars($don['designation']) : '-' ?></td>
                                 <td class="text-end"><?= $don['montant'] !== null ? number_format((float)$don['montant'], 0, ',', ' ') . ' Ar' : '-' ?></td>
                                 <td class="text-end"><?= $don['quantite'] !== null ? number_format((float)$don['quantite']) : '-' ?></td>
                                 <td class="text-end"><?= number_format((float)$don['restant'], 0, ',', ' ') . ($don['type_don'] === 'argent' ? ' Ar' : '') ?></td>

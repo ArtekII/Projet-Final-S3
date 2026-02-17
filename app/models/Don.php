@@ -32,16 +32,18 @@ class Don
     public function create(array $data): int
     {
         $stmt = $this->db->prepare(
-            "INSERT INTO dons (type_don, montant, quantite, restant) VALUES (?, ?, ?, ?)"
+            "INSERT INTO dons (type_don, designation, montant, quantite, restant) VALUES (?, ?, ?, ?, ?)"
         );
 
         $montant = !empty($data['montant']) ? (float) $data['montant'] : null;
         $quantite = !empty($data['quantite']) ? (float) $data['quantite'] : null;
+        $designation = !empty($data['designation']) ? trim($data['designation']) : null;
         // restant = montant pour argent, quantite pour nature/materiaux
         $restant = $data['type_don'] === 'argent' ? $montant : $quantite;
 
         $stmt->execute([
             $data['type_don'],
+            $designation,
             $montant,
             $quantite,
             $restant
@@ -53,13 +55,15 @@ class Don
     {
         $montant = !empty($data['montant']) ? (float) $data['montant'] : null;
         $quantite = !empty($data['quantite']) ? (float) $data['quantite'] : null;
+        $designation = !empty($data['designation']) ? trim($data['designation']) : null;
         $restant = $data['type_don'] === 'argent' ? $montant : $quantite;
 
         $stmt = $this->db->prepare(
-            "UPDATE dons SET type_don = ?, montant = ?, quantite = ?, restant = ? WHERE id = ?"
+            "UPDATE dons SET type_don = ?, designation = ?, montant = ?, quantite = ?, restant = ? WHERE id = ?"
         );
         return $stmt->execute([
             $data['type_don'],
+            $designation,
             $montant,
             $quantite,
             $restant,
