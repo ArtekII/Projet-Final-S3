@@ -2,7 +2,14 @@
 /**
  * @var array $attributions
  * @var bool $isSimulation
+ * @var string $modeDistribution
  */
+
+$modesLabels = [
+    'date' => 'Par date (FIFO)',
+    'priorite' => 'Par priorité (plus gros besoins)',
+    'proportionnel' => 'Proportionnel'
+];
 
 function formatMontant($montant): string {
     return number_format((float)($montant ?? 0), 0, ',', ' ') . ' Ar';
@@ -32,6 +39,7 @@ function formatMontant($montant): string {
         <i class="bi bi-info-circle-fill me-2"></i>
         <strong>Ceci est une simulation.</strong> Les données n'ont pas été enregistrées. 
         Cliquez sur <strong>"Valider le dispatch"</strong> pour confirmer les attributions.
+        <br><small><i class="bi bi-sliders me-1"></i>Mode de distribution : <strong><?= $modesLabels[$modeDistribution] ?? $modeDistribution ?></strong></small>
     </div>
 <?php endif; ?>
 
@@ -113,6 +121,7 @@ function formatMontant($montant): string {
     <div class="d-flex gap-2 mt-4">
         <?php if ($isSimulation): ?>
             <form action="<?= BASE_URL ?>/dispatch/valider" method="POST">
+                <input type="hidden" name="mode" value="<?= htmlspecialchars($modeDistribution ?? 'date') ?>">
                 <button type="submit" class="btn btn-success btn-lg" 
                         onclick="return confirm('Êtes-vous sûr de vouloir valider ce dispatch ? Cette action est irréversible.')">
                     <i class="bi bi-check-circle me-1"></i>Valider le dispatch

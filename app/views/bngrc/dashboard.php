@@ -5,6 +5,7 @@
  * @var array $statsDons
  * @var array $statsDispatch
  * @var array $regions
+ * @var string $modeDistribution
  */
 
 // Fonction pour formater les montants
@@ -16,16 +17,46 @@ function formatPourcentage($value, $total): string {
     if ($total <= 0) return '0%';
     return number_format(($value / $total) * 100, 1) . '%';
 }
+
+$modesLabels = [
+    'date' => 'Par date (FIFO)',
+    'priorite' => 'Par priorité (plus gros besoins)',
+    'proportionnel' => 'Proportionnel'
+];
 ?>
 
 <div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-3 border-bottom">
     <h1 class="h2">
         <i class="bi bi-speedometer2 me-2"></i>Tableau de bord
     </h1>
-    <div class="btn-toolbar">
+    <div class="d-flex gap-2 align-items-center">
+        <form action="<?= BASE_URL ?>/dashboard/reinitialiser" method="POST" class="d-inline">
+            <button type="submit" class="btn btn-outline-danger" 
+                    onclick="return confirm('Êtes-vous sûr de vouloir réinitialiser toutes les données ?\nCette action va :\n- Supprimer tous les dispatches\n- Supprimer tous les achats\n- Remettre les besoins à zéro\n- Restaurer les dons à leur état initial')">
+                <i class="bi bi-arrow-counterclockwise me-1"></i>Réinitialiser
+            </button>
+        </form>
         <a href="<?= BASE_URL ?>/dispatch/simuler" class="btn btn-primary">
             <i class="bi bi-play-fill me-1"></i>Simuler le dispatch
         </a>
+    </div>
+</div>
+
+<!-- Mode de distribution -->
+<div class="card mb-4">
+    <div class="card-body py-2">
+        <form action="<?= BASE_URL ?>/dashboard/mode" method="POST" class="d-flex align-items-center gap-3">
+            <span class="text-muted fw-bold"><i class="bi bi-sliders me-1"></i>Mode de distribution :</span>
+            <select class="form-select form-select-sm" name="mode_distribution" style="width: auto;" onchange="this.form.submit()">
+                <?php foreach ($modesLabels as $value => $label): ?>
+                    <option value="<?= $value ?>" <?= $modeDistribution === $value ? 'selected' : '' ?>>
+                        <?= $label ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+            <noscript><button type="submit" class="btn btn-sm btn-primary">Appliquer</button></noscript>
+            <span class="badge bg-info">Actuel : <?= $modesLabels[$modeDistribution] ?? $modeDistribution ?></span>
+        </form>
     </div>
 </div>
 

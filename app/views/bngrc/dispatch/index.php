@@ -2,21 +2,50 @@
 /**
  * @var array $dispatches
  * @var array $stats
+ * @var string $modeDistribution
  */
 
 function formatMontant($montant): string {
     return number_format((float)($montant ?? 0), 0, ',', ' ') . ' Ar';
 }
+
+$modesLabels = [
+    'date' => 'Par date (FIFO)',
+    'priorite' => 'Par priorité (plus gros besoins)',
+    'proportionnel' => 'Proportionnel'
+];
 ?>
 
 <div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-3 border-bottom">
     <h1 class="h2">
         <i class="bi bi-arrow-left-right me-2"></i>Dispatch des Dons
     </h1>
-    <a href="<?= BASE_URL ?>/dispatch/simuler" class="btn btn-primary">
-        <i class="bi bi-play-fill me-1"></i>Lancer le dispatch
-    </a>
+    <div class="d-flex gap-2 align-items-center">
+        <form action="<?= BASE_URL ?>/dashboard/reinitialiser" method="POST" class="d-inline">
+            <button type="submit" class="btn btn-outline-danger btn-sm"
+                    onclick="return confirm('Êtes-vous sûr de vouloir réinitialiser toutes les données ?\nCette action va :\n- Supprimer tous les dispatches\n- Supprimer tous les achats\n- Remettre les besoins à zéro\n- Restaurer les dons à leur état initial')">
+                <i class="bi bi-arrow-counterclockwise me-1"></i>Réinitialiser
+            </button>
+        </form>
+        <select id="modeSelect" class="form-select form-select-sm" style="width: auto;">
+            <?php foreach ($modesLabels as $value => $label): ?>
+                <option value="<?= $value ?>" <?= $modeDistribution === $value ? 'selected' : '' ?>>
+                    <?= $label ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+        <a href="<?= BASE_URL ?>/dispatch/simuler?mode=<?= $modeDistribution ?>" class="btn btn-primary" id="btnSimuler">
+            <i class="bi bi-play-fill me-1"></i>Lancer le dispatch
+        </a>
+    </div>
 </div>
+
+<script>
+document.getElementById('modeSelect').addEventListener('change', function() {
+    const btn = document.getElementById('btnSimuler');
+    btn.href = '<?= BASE_URL ?>/dispatch/simuler?mode=' + this.value;
+});
+</script>
 
 <!-- Statistiques -->
 <div class="row g-3 mb-4">
