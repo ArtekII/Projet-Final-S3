@@ -46,7 +46,10 @@ if (empty($app) === true) {
 $app->path(__DIR__ . $ds . '..' . $ds . '..');
 
 // Core config variables
-// $app->set('flight.base_url', '/');           // Base URL for your app. Change if app is in a subdirectory (e.g., '/myapp/')
+// Pour le déploiement sur le serveur : $base_url = '/ETU004248/Projet_Final_V1';
+$base_url = ''; // En local sur localhost:8000, laisser vide
+define('BASE_URL', $base_url);
+$app->set('flight.base_url', $base_url);            // Base URL for your app. Change if app is in a subdirectory (e.g., '/myapp/')
 $app->set('flight.case_sensitive', false);    // Set true for case sensitive routes. Default: false
 $app->set('flight.log_errors', true);         // Log errors to file. Recommended: true in production
 $app->set('flight.handle_errors', false);     // Let Tracy handle errors if false. Set true to use Flight's error handler
@@ -67,8 +70,8 @@ return [
 	 **************************************/
 	'database' => [
 		// MySQL Example:
-		'host'     => '127.0.0.1',      // Database host (e.g., 'localhost', 'db.example.com')
-		'dbname'   => 'takalo',   // Database name (e.g., 'flightphp')
+		'host'     => '127.0.0.1',      // Database host (e.g., '127.0.0.1', 'db.example.com')
+		'dbname'   => 'bngrc_db',   // Database name - BNGRC
 		'user'     => 'root',  // Database user (e.g., 'root')
 		'password' => '',  // Database password (never commit real passwords)
 

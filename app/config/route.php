@@ -1,8 +1,13 @@
 <?php
 
-use app\controllers\AdminController;
-use app\controllers\UserController;
-use app\controllers\CategoryController;
+use app\controllers\DashboardController;
+use app\controllers\VilleController;
+use app\controllers\RegionController;
+use app\controllers\BesoinController;
+use app\controllers\DonController;
+use app\controllers\DispatchController;
+use app\controllers\AchatController;
+use app\controllers\RecapController;
 use app\middlewares\SecurityHeadersMiddleware;
 use flight\Engine;
 use flight\net\Router;
@@ -15,78 +20,219 @@ use flight\net\Router;
 $db = $app->db();
 $view = $app->view();
 
-$adminController = new AdminController($db, $view);
-$userController = new UserController($db, $view);
-
-$router->get('/', function () use ($view) {
-    echo $view->render('home', ['pageTitle' => 'Accueil']);
-});
-
-$router->get('/logout', function () {
-    unset($_SESSION['user'], $_SESSION['admin']);
-    session_regenerate_id(true);
-    header('Location: ' . BASE_URL . '/login');
+// Page d'accueil - Redirection vers le tableau de bord
+$router->get('/', function () {
+    header('Location: ' . BASE_URL . '/dashboard');
     exit;
 });
 
-/* ADMIN */
-$router->get('/admin', [$adminController, 'showLogin']);
-$router->post('/admin/login', [$adminController, 'login']);
-$router->get('/admin/logout', [$adminController, 'logout']);
-$router->get('/admin/dashboard', [$adminController, 'dashboard']);
-$router->get('/admin/stats', [$adminController, 'dashboard']);
+// ==========================================
+// Routes BNGRC - Gestion des dons sinistrés
+// ==========================================
 
-/* USER */
-$router->get('/register', [$userController, 'showRegister']);
-$router->post('/register', [$userController, 'register']);
-$router->get('/login', [$userController, 'showLogin']);
-$router->post('/login', [$userController, 'login']);
+// Dashboard
+$router->get('/dashboard', function () use ($db, $view) {
+    $controller = new DashboardController($db, $view);
+    $controller->index();
+});
 
+$router->get('/dashboard/ville/@id:[0-9]+', function (int $id) use ($db, $view) {
+    $controller = new DashboardController($db, $view);
+    $controller->detailVille($id);
+});
 
-$router->group('', function (Router $router) use ($app) {
+$router->post('/dashboard/reinitialiser', function () use ($db, $view) {
+    $controller = new DashboardController($db, $view);
+    $controller->reinitialiser();
+});
 
-    // ==========================================
-    // Routes pour la gestion des catégories (Admin)
-    // ==========================================
-    $router->group('/admin/categories', function (Router $router) use ($app) {
-        
-        // Liste des catégories
-        $router->get('', function () use ($app) {
-            $controller = new CategoryController($app);
-            $controller->index();
-        });
+$router->post('/dashboard/mode', function () use ($db, $view) {
+    $controller = new DashboardController($db, $view);
+    $controller->updateMode();
+});
 
-        // Formulaire de création
-        $router->get('/create', function () use ($app) {
-            $controller = new CategoryController($app);
-            $controller->create();
-        });
+// ==========================================
+// Régions
+// ==========================================
+$router->get('/regions', function () use ($db, $view) {
+    $controller = new RegionController($db, $view);
+    $controller->index();
+});
 
-        // Enregistrer une nouvelle catégorie
-        $router->post('/store', function () use ($app) {
-            $controller = new CategoryController($app);
-            $controller->store();
-        });
+$router->get('/regions/create', function () use ($db, $view) {
+    $controller = new RegionController($db, $view);
+    $controller->create();
+});
 
-        // Formulaire de modification
-        $router->get('/edit/@id:[0-9]+', function (int $id) use ($app) {
-            $controller = new CategoryController($app);
-            $controller->edit($id);
-        });
+$router->post('/regions/store', function () use ($db, $view) {
+    $controller = new RegionController($db, $view);
+    $controller->store();
+});
 
-        // Mettre à jour une catégorie
-        $router->post('/update/@id:[0-9]+', function (int $id) use ($app) {
-            $controller = new CategoryController($app);
-            $controller->update($id);
-        });
+$router->get('/regions/edit/@id:[0-9]+', function (int $id) use ($db, $view) {
+    $controller = new RegionController($db, $view);
+    $controller->edit($id);
+});
 
-        // Supprimer une catégorie
-        $router->post('/delete/@id:[0-9]+', function (int $id) use ($app) {
-            $controller = new CategoryController($app);
-            $controller->delete($id);
-        });
-    });
+$router->post('/regions/update/@id:[0-9]+', function (int $id) use ($db, $view) {
+    $controller = new RegionController($db, $view);
+    $controller->update($id);
+});
 
+$router->post('/regions/delete/@id:[0-9]+', function (int $id) use ($db, $view) {
+    $controller = new RegionController($db, $view);
+    $controller->delete($id);
+});
 
+// ==========================================
+// Villes
+// ==========================================
+$router->get('/villes', function () use ($db, $view) {
+    $controller = new VilleController($db, $view);
+    $controller->index();
+});
 
-}, [SecurityHeadersMiddleware::class]);
+$router->get('/villes/create', function () use ($db, $view) {
+    $controller = new VilleController($db, $view);
+    $controller->create();
+});
+
+$router->post('/villes/store', function () use ($db, $view) {
+    $controller = new VilleController($db, $view);
+    $controller->store();
+});
+
+$router->get('/villes/edit/@id:[0-9]+', function (int $id) use ($db, $view) {
+    $controller = new VilleController($db, $view);
+    $controller->edit($id);
+});
+
+$router->post('/villes/update/@id:[0-9]+', function (int $id) use ($db, $view) {
+    $controller = new VilleController($db, $view);
+    $controller->update($id);
+});
+
+$router->post('/villes/delete/@id:[0-9]+', function (int $id) use ($db, $view) {
+    $controller = new VilleController($db, $view);
+    $controller->delete($id);
+});
+
+// ==========================================
+// Besoins
+// ==========================================
+$router->get('/besoins', function () use ($db, $view) {
+    $controller = new BesoinController($db, $view);
+    $controller->index();
+});
+
+$router->get('/besoins/create', function () use ($db, $view) {
+    $controller = new BesoinController($db, $view);
+    $controller->create();
+});
+
+$router->post('/besoins/store', function () use ($db, $view) {
+    $controller = new BesoinController($db, $view);
+    $controller->store();
+});
+
+$router->get('/besoins/edit/@id:[0-9]+', function (int $id) use ($db, $view) {
+    $controller = new BesoinController($db, $view);
+    $controller->edit($id);
+});
+
+$router->post('/besoins/update/@id:[0-9]+', function (int $id) use ($db, $view) {
+    $controller = new BesoinController($db, $view);
+    $controller->update($id);
+});
+
+$router->post('/besoins/delete/@id:[0-9]+', function (int $id) use ($db, $view) {
+    $controller = new BesoinController($db, $view);
+    $controller->delete($id);
+});
+
+// ==========================================
+// Dons
+// ==========================================
+$router->get('/dons', function () use ($db, $view) {
+    $controller = new DonController($db, $view);
+    $controller->index();
+});
+
+$router->get('/dons/create', function () use ($db, $view) {
+    $controller = new DonController($db, $view);
+    $controller->create();
+});
+
+$router->post('/dons/store', function () use ($db, $view) {
+    $controller = new DonController($db, $view);
+    $controller->store();
+});
+
+$router->get('/dons/edit/@id:[0-9]+', function (int $id) use ($db, $view) {
+    $controller = new DonController($db, $view);
+    $controller->edit($id);
+});
+
+$router->post('/dons/update/@id:[0-9]+', function (int $id) use ($db, $view) {
+    $controller = new DonController($db, $view);
+    $controller->update($id);
+});
+
+$router->post('/dons/delete/@id:[0-9]+', function (int $id) use ($db, $view) {
+    $controller = new DonController($db, $view);
+    $controller->delete($id);
+});
+
+// ==========================================
+// Dispatch
+// ==========================================
+$router->get('/dispatch', function () use ($db, $view) {
+    $controller = new DispatchController($db, $view);
+    $controller->index();
+});
+
+$router->get('/dispatch/simuler', function () use ($db, $view) {
+    $controller = new DispatchController($db, $view);
+    $controller->simuler();
+});
+
+$router->post('/dispatch/valider', function () use ($db, $view) {
+    $controller = new DispatchController($db, $view);
+    $controller->valider();
+});
+
+// ==========================================
+// Achats
+// ==========================================
+$router->get('/achats', function () use ($db, $view) {
+    $controller = new AchatController($db, $view);
+    $controller->index();
+});
+
+$router->get('/achats/create', function () use ($db, $view) {
+    $controller = new AchatController($db, $view);
+    $controller->create();
+});
+
+$router->post('/achats/store', function () use ($db, $view) {
+    $controller = new AchatController($db, $view);
+    $controller->store();
+});
+
+$router->post('/achats/frais', function () use ($db, $view) {
+    $controller = new AchatController($db, $view);
+    $controller->updateFrais();
+});
+
+// ==========================================
+// Récapitulation
+// ==========================================
+$router->get('/recap', function () use ($db, $view) {
+    $controller = new RecapController($db, $view);
+    $controller->index();
+});
+
+$router->get('/recap/api', function () use ($db, $view) {
+    $controller = new RecapController($db, $view);
+    $controller->apiData();
+});
